@@ -1,0 +1,49 @@
+apply plugin: 'android'
+apply plugin: 'hugo'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.0.1"
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 19
+        versionCode 1
+        versionName "0.0.1"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("ironeye.keystore")
+            keyAlias "ironeye"
+        }
+    }
+
+    buildTypes {
+        release {
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            signingConfig signingConfigs.release
+        }
+
+        if (project.hasProperty('storePassword') && project.hasProperty('keyPassword')) {
+            android.signingConfigs.release.storePassword = storePassword
+            android.signingConfigs.release.keyPassword = keyPassword
+        } else {
+            buildTypes.release.signingConfig = null
+        }
+    }
+}
+
+dependencies {
+  //  compile 'com.jakewharton:butterknife:4.0.1'
+  //  compile 'com.squareup.okhttp:okhttp:1.3.0'
+  //  compile 'com.squareup.phrase:phrase:1.0.3'
+  //  compile 'se.emilsjolander:sprinkles:1.1.3'
+    compile 'com.google.android.gms:play-services:4.0.30'
+    compile 'com.android.support:support-v4:18.0.0'
+  //  compile 'com.jakewharton.timber:timber:2.1.0'
+    compile 'com.github.johnkil.android-robototextview:robototextview:2.0.0'
+
+    compile fileTree(dir: 'libs', include: '*.jar')
+}
