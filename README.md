@@ -1,2 +1,2 @@
-IronEye
-=======
+IronEye Android companion app
+=============================
