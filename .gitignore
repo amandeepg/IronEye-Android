@@ -44,5 +44,6 @@ out/
 
 ## Gradle ##
 .gradle/
+gradle/wrapper/gradle-wrapper.properties
 gradlew.bat
 
