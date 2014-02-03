@@ -67,20 +67,17 @@ public class MainActivity extends Activity
     public void onNavigationDrawerItemSelected(int position) {
         FragmentManager fragmentManager = getFragmentManager();
         Fragment frag = mFrags.get(position);
-        Log.d(TAG, "pos = " + position + ", frag = " + frag);
-
         FragmentTransaction ft = fragmentManager.beginTransaction();
 
-        for (Fragment fr : mFrags.values()) {
-            if (fr != frag) {
-                ft.hide(fr);
-            }
-        }
+        hideFrags(frag, ft);
 
         if (frag == null) {
             switch (position) {
                 case 0:
-                    frag = QrCodeFragment.newInstance(position);
+                    frag = QrCodeFragment.newInstance();
+                    break;
+                case 2:
+                    frag = LogFragment.newInstance();
                     break;
                 default:
                     frag = PlaceholderFragment.newInstance(position);
@@ -94,6 +91,14 @@ public class MainActivity extends Activity
 
         onSectionAttached(position);
         restoreActionBar();
+    }
+
+    private void hideFrags(Fragment exemptFrag, FragmentTransaction ft) {
+        for (Fragment fr : mFrags.values()) {
+            if (fr != exemptFrag) {
+                ft.hide(fr);
+            }
+        }
     }
 
     public void onSectionAttached(int number) {

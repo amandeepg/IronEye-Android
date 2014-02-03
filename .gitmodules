@@ -1,0 +1,3 @@
+[submodule "holographlibrary"]
+	path = holographlibrary
+	url = git@bitbucket.org:AmandeepG/holographlibrary.git

@@ -36,7 +36,7 @@ public class QrCodeFragment extends Fragment {
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static QrCodeFragment newInstance(int sectionNumber) {
+    public static QrCodeFragment newInstance() {
         QrCodeFragment fragment = new QrCodeFragment();
         return fragment;
     }
