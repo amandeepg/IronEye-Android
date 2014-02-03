@@ -7,12 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.echo.holographlibrary.Bar;
-import com.echo.holographlibrary.BarGraph;
-
 import java.util.ArrayList;
 import java.util.Random;
 
+import ca.amandeep.holograph.Bar;
+import ca.amandeep.holograph.BarGraph;
 import hugo.weaving.DebugLog;
 
 public class LogFragment extends Fragment {
@@ -49,10 +48,9 @@ public class LogFragment extends Fragment {
         }
 
         BarGraph g = (BarGraph) rootView.findViewById(R.id.graph);
-        g.setShowBarText(false);
-        g.setPadding(1);
+        g.setPadding(1.5f);
         g.setBars(points);
-        g.setBarSize(152);
+        g.setBarSize(150);
 
         g.setOnBarClickedListener(new BarGraph.OnBarClickedListener() {
 

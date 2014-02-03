@@ -1,1 +1,1 @@
-include ':ironeye', ':holographlibrary:HoloGraphLibrary'
+include ':ironeye'

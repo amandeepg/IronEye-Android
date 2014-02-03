@@ -13,7 +13,7 @@
         android:layout_height="fill_parent"
         android:fillViewport="true">
 
-        <com.echo.holographlibrary.BarGraph
+        <ca.amandeep.holograph.BarGraph
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/graph" />
