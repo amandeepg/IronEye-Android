@@ -21,9 +21,16 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.plus.PlusClient;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.HashMap;
 
 import hugo.weaving.DebugLog;
+
+import static com.ironeye.IronEyeProtos.IronMessage;
 
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
@@ -44,6 +51,9 @@ public class MainActivity extends Activity
     private CharSequence mTitle;
     private HashMap<Integer, Fragment> mFrags = new HashMap<Integer, Fragment>();
 
+    private ServerSocket mServerSocket;
+    private Socket mSocket;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +71,43 @@ public class MainActivity extends Activity
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mServerSocket = new ServerSocket(38300);
+                    mSocket = mServerSocket.accept();
+
+                    IronMessage.UserInfo userInfo = IronMessage.UserInfo.newBuilder()
+                            .setId(AppController.getInstance().currentPerson.getId())
+                            .build();
+
+                    IronMessage msg = IronMessage.newBuilder()
+                            .setUserInfo(userInfo)
+                            .setType(IronMessage.MessageType.USER_INFO)
+                            .build();
+
+                    OutputStream out = mSocket.getOutputStream();
+                    InputStream in = mSocket.getInputStream();
+
+                    msg.writeDelimitedTo(out);
+
+                    while (true) {
+                        IronMessage statusMsg = IronMessage.parseDelimitedFrom(in);
+                        if (statusMsg.getType().equals(IronMessage.MessageType.WORKOUT_INFO)) {
+                            Log.d(TAG, "weight = " + statusMsg.getWorkoutInfo().getWeight());
+                            break;
+                        }
+                        Log.d(TAG, "status = " + statusMsg.getErrorData().getCommand());
+                    }
+                    mSocket.close();
+                    mServerSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     @Override
