@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:padding="50dp"
     android:background="#111"
-    tools:context="ca.amandeep.ironeye.SignInActivity">
+    tools:context="com.ironeye.android.SignInActivity">
 
     <com.devspark.robototextview.widget.RobotoTextView
         android:layout_width="wrap_content"

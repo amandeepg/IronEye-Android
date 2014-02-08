@@ -1,4 +1,4 @@
-package ca.amandeep.ironeye;
+package com.ironeye.android;
 
 import android.app.Fragment;
 import android.graphics.Color;
@@ -7,11 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.ironeye.android.holograph.Bar;
+import com.ironeye.android.holograph.BarGraph;
+
 import java.util.ArrayList;
 import java.util.Random;
 
-import ca.amandeep.holograph.Bar;
-import ca.amandeep.holograph.BarGraph;
 import hugo.weaving.DebugLog;
 
 public class LogFragment extends Fragment {

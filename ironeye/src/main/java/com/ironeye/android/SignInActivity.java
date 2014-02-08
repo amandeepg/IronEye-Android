@@ -1,4 +1,4 @@
-package ca.amandeep.ironeye;
+package com.ironeye.android;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -14,12 +14,15 @@ import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.plus.PlusClient;
 
+import hugo.weaving.DebugLog;
+
 public class SignInActivity extends Activity implements
         View.OnClickListener, GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener {
 
     private static final int REQUEST_CODE_RESOLVE_ERR = 9000;
     private static final int REQUEST_CODE_PLAY_SERVICES_ERR = 8000;
+    private static final String TAG = "SignInActivity";
 
     private ProgressDialog mConnectionProgressDialog;
     private PlusClient mPlusClient;
@@ -40,10 +43,11 @@ public class SignInActivity extends Activity implements
         mSignInButton.setOnClickListener(this);
 
         mPlusClient = new PlusClient.Builder(this, this, this)
-                .setScopes(Scopes.PLUS_PROFILE)
+                .setScopes(Scopes.PLUS_LOGIN)
                 .build();
     }
 
+    @DebugLog
     public void onConnected(Bundle connectionHint) {
         AppController.getInstance().currentPerson = mPlusClient.getCurrentPerson();
 
@@ -57,10 +61,12 @@ public class SignInActivity extends Activity implements
         finish();
     }
 
+    @DebugLog
     @Override
     public void onDisconnected() {
     }
 
+    @DebugLog
     @Override
     public void onConnectionFailed(ConnectionResult result) {
         if (mConnectionProgressDialog.isShowing()) {
@@ -103,7 +109,7 @@ public class SignInActivity extends Activity implements
         }
     }
 
-
+    @DebugLog
     @Override
     protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
         if (requestCode == REQUEST_CODE_RESOLVE_ERR && responseCode == RESULT_OK) {

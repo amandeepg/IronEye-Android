@@ -6,4 +6,4 @@
     android:divider="#454547"
     android:dividerHeight="1dp"
     android:background="#3a3a3c"
-    tools:context="com.example.app.NavigationDrawerFragment" />
+    tools:context="com.ironeye.android.NavigationDrawerFragment" />

@@ -21,7 +21,7 @@
        under the License.
  */
 
-package ca.amandeep.holograph;
+package com.ironeye.android.holograph;
 
 import android.graphics.RectF;
 

@@ -1,4 +1,4 @@
-package ca.amandeep.ironeye;
+package com.ironeye.android;
 
 import android.app.ActionBar;
 import android.app.Activity;

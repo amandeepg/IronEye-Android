@@ -1,4 +1,4 @@
-package ca.amandeep.ironeye;
+package com.ironeye.android;
 
 import android.app.Fragment;
 import android.graphics.Bitmap;
@@ -41,7 +41,6 @@ public class QrCodeFragment extends Fragment {
         return fragment;
     }
 
-    @DebugLog
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
