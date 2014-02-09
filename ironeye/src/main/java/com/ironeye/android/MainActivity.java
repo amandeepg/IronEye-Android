@@ -288,9 +288,29 @@ public class MainActivity extends Activity
                     throw new IllegalStateException("Not connected when trying to sign out.");
                 }
                 break;
+            case R.id.start_set_action:
+                sendStartSet();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void sendStartSet() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                IronMessage msg = IronMessage.newBuilder()
+                        .setType(IronMessage.MessageType.SET_START)
+                        .build();
+
+                try {
+                    msg.writeDelimitedTo(mSocket.getOutputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     @DebugLog

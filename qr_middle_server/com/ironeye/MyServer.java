@@ -63,11 +63,27 @@ public class MyServer {
 
     private static void runMockServer() throws IOException, InterruptedException {
         ServerSocket socket = new ServerSocket(SERVER_PORT);
-        Socket socketToPhone = socket.accept();
+        final Socket socketToPhone = socket.accept();
         OutputStream outToPhone = socketToPhone.getOutputStream();
 
         IronMessage.UserInfo userInfo =
                 IronMessage.parseDelimitedFrom(socketToPhone.getInputStream()).getUserInfo();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (true) {
+                        IronMessage msg = IronMessage.parseDelimitedFrom(socketToPhone.getInputStream());
+                        if (msg.getType().equals(IronMessage.MessageType.SET_START)) {
+                            System.out.println("startSet!");
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
 
         for (int i = 0; i < 3; i++) {
             Thread.sleep(5000 - i * 300);
