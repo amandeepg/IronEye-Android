@@ -45,6 +45,7 @@ public class MainActivity extends Activity
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener {
 
+    public static final int SERVER_PORT = 38300;
     private static final String TAG = "MainActivity";
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -84,79 +85,86 @@ public class MainActivity extends Activity
             @Override
             public void run() {
                 try {
-                    mServerSocket = new ServerSocket(38300);
-                    mSocket = mServerSocket.accept();
-
-                    IronMessage.UserInfo userInfo = IronMessage.UserInfo.newBuilder()
-                            .setId(AppController.getInstance().currentPerson.getId())
-                            .build();
-
-                    IronMessage msg = IronMessage.newBuilder()
-                            .setUserInfo(userInfo)
-                            .setType(IronMessage.MessageType.USER_INFO)
-                            .build();
-
-                    OutputStream out = mSocket.getOutputStream();
-                    InputStream in = mSocket.getInputStream();
-
-                    msg.writeDelimitedTo(out);
-                    String uid = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
-
-                    while (true) {
-                        IronMessage statusMsg = IronMessage.parseDelimitedFrom(in);
-                        if (statusMsg.getType().equals(IronMessage.MessageType.WORKOUT_INFO)) {
-                            IronMessage.WorkoutInfo workoutInfo = statusMsg.getWorkoutInfo();
-                            StringBuilder toastMessage = new StringBuilder();
-
-                            for (IronMessage.Set set : workoutInfo.getSetList()) {
-                                int reps = set.getReps();
-                                int weight = set.getWeight();
-                                Log.d(TAG, "reps = " + reps);
-                                Log.d(TAG, "weight = " + weight);
-
-                                toastMessage
-                                        .append("Reps: ").append(reps).append(", ")
-                                        .append("Weight: ").append(weight).append("\n");
-                            }
-
-                            showToast(toastMessage);
-                            break;
-                        }
-
-                        IronMessage.FormErrorData formError = statusMsg.getErrorData();
-                        StringBuilder toastMessage = new StringBuilder();
-                        for (IronMessage.JointError je : formError.getJointList()) {
-                            String jointType = je.getJointType().toString();
-                            String jointMsg = je.getErrorMessage();
-                            Log.d(TAG, "status = " + jointType + " - " + jointMsg);
-                            toastMessage
-                                    .append(jointType).append(": ")
-                                    .append(jointMsg).append("\n");
-                        }
-
-                        showToast(toastMessage);
-                    }
-
-                    final File vidFile = new File(getExternalFilesDir(null), "DemoFile.mp4");
-                    FileOutputStream fos = new FileOutputStream(vidFile);
-
-                    int read;
-                    byte[] bytes = new byte[1024];
-                    while ((read = in.read(bytes)) != -1) {
-                        fos.write(bytes, 0, read);
-                    }
-
-                    fos.close();
-
-                    mSocket.close();
-                    mServerSocket.close();
-
-                    promptPlayVideo(vidFile);
+                    receiveFromServer();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
+    }
+
+    private void receiveFromServer() throws IOException {
+        mServerSocket = new ServerSocket(SERVER_PORT);
+        mSocket = mServerSocket.accept();
+
+        IronMessage.UserInfo.Builder userInfo = IronMessage.UserInfo.newBuilder()
+                .setId(AppController.getInstance().currentPerson.getId());
+
+        IronMessage msg = IronMessage.newBuilder()
+                .setUserInfo(userInfo)
+                .setType(IronMessage.MessageType.USER_INFO)
+                .build();
+
+        OutputStream out = mSocket.getOutputStream();
+        InputStream in = mSocket.getInputStream();
+
+        msg.writeDelimitedTo(out);
+        String uid = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
+
+        while (true) {
+            IronMessage statusMsg = IronMessage.parseDelimitedFrom(in);
+            if (statusMsg.getType().equals(IronMessage.MessageType.WORKOUT_INFO)) {
+                IronMessage.WorkoutInfo workoutInfo = statusMsg.getWorkoutInfo();
+                StringBuilder toastMessage = new StringBuilder();
+
+                for (IronMessage.Set set : workoutInfo.getSetList()) {
+                    int reps = set.getReps();
+                    int weight = set.getWeight();
+                    Log.d(TAG, "reps = " + reps);
+                    Log.d(TAG, "weight = " + weight);
+
+                    toastMessage
+                            .append("Reps: ").append(reps).append(", ")
+                            .append("Weight: ").append(weight).append("\n");
+                }
+
+                showToast(toastMessage);
+                break;
+            }
+
+            IronMessage.FormErrorData formError = statusMsg.getErrorData();
+            StringBuilder toastMessage = new StringBuilder();
+            for (IronMessage.JointError je : formError.getJointList()) {
+                String jointType = je.getJointType().toString();
+                String jointMsg = je.getErrorMessage();
+                Log.d(TAG, "status = " + jointType + " - " + jointMsg);
+                toastMessage
+                        .append(jointType).append(": ")
+                        .append(jointMsg).append("\n");
+            }
+
+            showToast(toastMessage);
+        }
+
+        File vidFile = new File(getExternalFilesDir(null), "DemoFile.mp4");
+        inputStreamToFile(in, vidFile);
+
+        mSocket.close();
+        mServerSocket.close();
+
+        promptPlayVideo(vidFile);
+    }
+
+    private void inputStreamToFile(InputStream in, File vidFile) throws IOException {
+        FileOutputStream fos = new FileOutputStream(vidFile);
+
+        int read;
+        byte[] bytes = new byte[1024];
+        while ((read = in.read(bytes)) != -1) {
+            fos.write(bytes, 0, read);
+        }
+
+        fos.close();
     }
 
     private void promptPlayVideo(final File vidFile) {

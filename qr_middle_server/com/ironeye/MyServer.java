@@ -15,15 +15,16 @@ import java.util.Scanner;
 import static com.ironeye.IronEyeProtos.IronMessage;
 
 public class MyServer {
+    public static final int PHONE_PORT = 38300;
+    public static final int SERVER_PORT = 3333;
     private static Socket socketToPhone, socketToServer;
 
     public static void main(String[] args) throws IOException {
-
         execAdb();
         runMockServerAsync();
         String id = scanQr();
 
-        socketToPhone = new Socket("localhost", 38300);
+        socketToPhone = new Socket("localhost", PHONE_PORT);
         OutputStream outToPhone = socketToPhone.getOutputStream();
         InputStream inFromPhone = socketToPhone.getInputStream();
 
@@ -32,7 +33,7 @@ public class MyServer {
         verifyId(id, msg);
 
         // Create socket with server
-        socketToServer = new Socket("localhost", 3333);
+        socketToServer = new Socket("localhost", SERVER_PORT);
         OutputStream outToServer = socketToServer.getOutputStream();
         InputStream inFromServer = socketToServer.getInputStream();
 
@@ -61,7 +62,7 @@ public class MyServer {
     }
 
     private static void runMockServer() throws IOException, InterruptedException {
-        ServerSocket socket = new ServerSocket(3333);
+        ServerSocket socket = new ServerSocket(SERVER_PORT);
         Socket socketToPhone = socket.accept();
         OutputStream outToPhone = socketToPhone.getOutputStream();
 
