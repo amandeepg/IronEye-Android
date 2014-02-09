@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -21,6 +22,8 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.plus.PlusClient;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -101,8 +104,24 @@ public class MainActivity extends Activity
                         }
                         Log.d(TAG, "status = " + statusMsg.getErrorData().getCommand());
                     }
+
+                    File vidFile = new File(getExternalFilesDir(null), "DemoFile.mp4");
+                    FileOutputStream fos = new FileOutputStream(vidFile);
+
+                    int read;
+                    byte[] bytes = new byte[1024];
+                    while ((read = in.read(bytes)) != -1) {
+                        fos.write(bytes, 0, read);
+                    }
+
+                    fos.close();
+
                     mSocket.close();
                     mServerSocket.close();
+
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.fromFile(vidFile), "video/*");
+                    startActivity(intent);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -1,6 +1,8 @@
 package com.ironeye;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,8 +14,9 @@ import java.util.Scanner;
 import static com.ironeye.IronEyeProtos.IronMessage;
 
 public class MyServer {
+    private static Socket socketToPhone, socketToServer;
+
     public static void main(String[] args) throws IOException {
-        Socket socketToPhone, socketToServer;
 
         execAdb();
         runMockServerAsync();
@@ -59,11 +62,12 @@ public class MyServer {
     private static void runMockServer() throws IOException, InterruptedException {
         ServerSocket socket = new ServerSocket(3333);
         Socket socketToPhone = socket.accept();
+        OutputStream outToPhone = socketToPhone.getOutputStream();
 
         IronMessage.UserInfo userInfo =
                 IronMessage.parseDelimitedFrom(socketToPhone.getInputStream()).getUserInfo();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 3; i++) {
             Thread.sleep(5000 - i * 300);
 
             IronMessage.FormErrorData fed = IronMessage.FormErrorData.newBuilder()
@@ -75,7 +79,7 @@ public class MyServer {
                     .setErrorData(fed)
                     .build();
 
-            statusMsg.writeDelimitedTo(socketToPhone.getOutputStream());
+            statusMsg.writeDelimitedTo(outToPhone);
         }
 
         IronMessage.WorkoutInfo fed = IronMessage.WorkoutInfo.newBuilder()
@@ -89,9 +93,24 @@ public class MyServer {
                 .setWorkoutInfo(fed)
                 .build();
 
-        workoutMsg.writeDelimitedTo(socketToPhone.getOutputStream());
+        workoutMsg.writeDelimitedTo(outToPhone);
+
+        fileToOutStream(outToPhone, new File("small.mp4"));
+
+        outToPhone.close();
         socketToPhone.close();
         socket.close();
+    }
+
+    private static void fileToOutStream(OutputStream outToPhone, File f) throws IOException {
+        FileInputStream fis = new FileInputStream(f);
+        byte[] buffer = new byte[4096];
+        int len;
+        while ((len = fis.read(buffer)) != -1) {
+            outToPhone.write(buffer, 0, len);
+        }
+        outToPhone.flush();
+        fis.close();
     }
 
     private static void outStreamToInStreamAsync(final InputStream in, final OutputStream out) {
@@ -100,6 +119,12 @@ public class MyServer {
             public void run() {
                 try {
                     outStreamToInStream(in, out);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    socketToPhone.close();
+                    socketToServer.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
