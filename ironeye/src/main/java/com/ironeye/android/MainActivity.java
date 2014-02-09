@@ -2,9 +2,11 @@ package com.ironeye.android;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -29,6 +32,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import hugo.weaving.DebugLog;
@@ -95,17 +100,44 @@ public class MainActivity extends Activity
                     InputStream in = mSocket.getInputStream();
 
                     msg.writeDelimitedTo(out);
+                    String uid = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
 
                     while (true) {
                         IronMessage statusMsg = IronMessage.parseDelimitedFrom(in);
                         if (statusMsg.getType().equals(IronMessage.MessageType.WORKOUT_INFO)) {
-                            Log.d(TAG, "weight = " + statusMsg.getWorkoutInfo().getWeight());
+                            IronMessage.WorkoutInfo workoutInfo = statusMsg.getWorkoutInfo();
+                            StringBuilder toastMessage = new StringBuilder();
+
+                            for (IronMessage.Set set : workoutInfo.getSetList()) {
+                                int reps = set.getReps();
+                                int weight = set.getWeight();
+                                Log.d(TAG, "reps = " + reps);
+                                Log.d(TAG, "weight = " + weight);
+
+                                toastMessage
+                                        .append("Reps: ").append(reps).append(", ")
+                                        .append("Weight: ").append(weight).append("\n");
+                            }
+
+                            showToast(toastMessage);
                             break;
                         }
-                        Log.d(TAG, "status = " + statusMsg.getErrorData().getCommand());
+
+                        IronMessage.FormErrorData formError = statusMsg.getErrorData();
+                        StringBuilder toastMessage = new StringBuilder();
+                        for (IronMessage.JointError je : formError.getJointList()) {
+                            String jointType = je.getJointType().toString();
+                            String jointMsg = je.getErrorMessage();
+                            Log.d(TAG, "status = " + jointType + " - " + jointMsg);
+                            toastMessage
+                                    .append(jointType).append(": ")
+                                    .append(jointMsg).append("\n");
+                        }
+
+                        showToast(toastMessage);
                     }
 
-                    File vidFile = new File(getExternalFilesDir(null), "DemoFile.mp4");
+                    final File vidFile = new File(getExternalFilesDir(null), "DemoFile.mp4");
                     FileOutputStream fos = new FileOutputStream(vidFile);
 
                     int read;
@@ -119,14 +151,48 @@ public class MainActivity extends Activity
                     mSocket.close();
                     mServerSocket.close();
 
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setDataAndType(Uri.fromFile(vidFile), "video/*");
-                    startActivity(intent);
+                    promptPlayVideo(vidFile);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
+    }
+
+    private void promptPlayVideo(final File vidFile) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setDataAndType(Uri.fromFile(vidFile), "video/*");
+                                startActivity(intent);
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                break;
+                        }
+                    }
+                };
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setMessage("Play Video?").setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener).show();
+            }
+        });
+    }
+
+    private void showToast(final StringBuilder toastMessage) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MainActivity.this, toastMessage.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

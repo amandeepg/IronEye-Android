@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import static com.ironeye.IronEyeProtos.IronMessage;
@@ -70,9 +71,22 @@ public class MyServer {
         for (int i = 0; i < 3; i++) {
             Thread.sleep(5000 - i * 300);
 
-            IronMessage.FormErrorData fed = IronMessage.FormErrorData.newBuilder()
-                    .setCommand("Bad knee!")
+            IronMessage.JointError je1 = IronMessage.JointError.newBuilder()
+                    .setJointType(IronMessage.JointType.LEFT_FOOT)
+                    .setErrorMessage("Wrong")
                     .build();
+
+            IronMessage.JointError je2 = IronMessage.JointError.newBuilder()
+                    .setJointType(IronMessage.JointType.LEFT_FOOT)
+                    .setErrorMessage("Wrong")
+                    .build();
+
+            ArrayList<IronMessage.JointError> jes = new ArrayList<IronMessage.JointError>();
+            jes.add(je1);
+            jes.add(je2);
+
+            IronMessage.FormErrorData.Builder fed = IronMessage.FormErrorData.newBuilder()
+                    .addAllJoint(jes);
 
             IronMessage statusMsg = IronMessage.newBuilder()
                     .setType(IronMessage.MessageType.FORM_ERROR)
@@ -82,15 +96,26 @@ public class MyServer {
             statusMsg.writeDelimitedTo(outToPhone);
         }
 
-        IronMessage.WorkoutInfo fed = IronMessage.WorkoutInfo.newBuilder()
+        IronMessage.Set set1 = IronMessage.Set.newBuilder()
                 .setReps((int) (20 + (Math.random() * 20)))
-                .setSets((int) (20 + (Math.random() * 20)))
                 .setWeight((int) (20 + (Math.random() * 20)))
                 .build();
 
+        IronMessage.Set set2 = IronMessage.Set.newBuilder()
+                .setReps((int) (20 + (Math.random() * 20)))
+                .setWeight((int) (20 + (Math.random() * 20)))
+                .build();
+
+        ArrayList<IronMessage.Set> sets = new ArrayList<IronMessage.Set>();
+        sets.add(set1);
+        sets.add(set2);
+
+        IronMessage.WorkoutInfo.Builder wi = IronMessage.WorkoutInfo.newBuilder()
+                .addAllSet(sets);
+
         IronMessage workoutMsg = IronMessage.newBuilder()
                 .setType(IronMessage.MessageType.WORKOUT_INFO)
-                .setWorkoutInfo(fed)
+                .setWorkoutInfo(wi)
                 .build();
 
         workoutMsg.writeDelimitedTo(outToPhone);
