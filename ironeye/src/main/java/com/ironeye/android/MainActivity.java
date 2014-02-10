@@ -110,6 +110,7 @@ public class MainActivity extends Activity
 
         msg.writeDelimitedTo(out);
         String uid = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
+        Log.d(TAG, "uid = " + uid);
 
         while (true) {
             IronMessage statusMsg = IronMessage.parseDelimitedFrom(in);
@@ -146,7 +147,12 @@ public class MainActivity extends Activity
             showToast(toastMessage);
         }
 
-        File vidFile = new File(getExternalFilesDir(null), "DemoFile.mp4");
+        boolean mkdirs = new File(getExternalFilesDir(null), uid).mkdirs();
+        if (!mkdirs) {
+            Log.d(TAG, "Directory not made.");
+        }
+
+        File vidFile = new File(getExternalFilesDir(null), uid + File.separator + "video.mp4");
         inputStreamToFile(in, vidFile);
 
         mSocket.close();
