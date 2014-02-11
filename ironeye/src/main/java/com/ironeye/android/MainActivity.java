@@ -24,6 +24,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.plus.PlusClient;
+import com.ironeye.IronEyeProtos;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -112,6 +113,8 @@ public class MainActivity extends Activity
         String uid = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
         Log.d(TAG, "uid = " + uid);
 
+        int i = 0;
+
         while (true) {
             IronMessage statusMsg = IronMessage.parseDelimitedFrom(in);
             if (statusMsg.getType().equals(IronMessage.MessageType.WORKOUT_INFO)) {
@@ -131,6 +134,13 @@ public class MainActivity extends Activity
 
                 showToast(toastMessage);
                 break;
+            }
+
+            if (i++ < 5) {
+                Log.d(TAG, "SKIP " + i);
+                continue;
+            } else {
+                i = 0;
             }
 
             IronMessage.FormErrorData formError = statusMsg.getErrorData();
@@ -201,6 +211,9 @@ public class MainActivity extends Activity
     }
 
     private void showToast(final StringBuilder toastMessage) {
+        if (toastMessage.length() < 1) {
+            return;
+        }
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -295,19 +308,22 @@ public class MainActivity extends Activity
                 }
                 break;
             case R.id.start_set_action:
-                sendStartSet();
+                sendSetControlMsg(IronMessage.MessageType.SET_START);
+                break;
+            case R.id.end_set_action:
+                sendSetControlMsg(IronMessage.MessageType.SET_END);
                 break;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void sendStartSet() {
+    private void sendSetControlMsg(final IronMessage.MessageType type) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 IronMessage msg = IronMessage.newBuilder()
-                        .setType(IronMessage.MessageType.SET_START)
+                        .setType(type)
                         .build();
 
                 try {

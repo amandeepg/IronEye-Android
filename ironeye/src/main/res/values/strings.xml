@@ -15,5 +15,6 @@
     <string name="signin_subtitle">Get more gainz</string>
     <string name="qr_code">QR Code</string>
     <string name="start_set">Start Set</string>
+    <string name="end_set">End Set</string>
 
 </resources>
