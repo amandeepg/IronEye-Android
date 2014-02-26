@@ -17,7 +17,7 @@ public class SplashActivity extends Activity implements
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener {
 
-    public static final int SPLASH_SHOW_TIME_MILLIS = 1000;
+    public static final int SPLASH_SHOW_TIME_MILLIS = 100;
     private static final String TAG = "SplashActivity";
 
     private PlusClient mPlusClient;

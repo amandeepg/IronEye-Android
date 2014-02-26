@@ -140,7 +140,12 @@ public class BarGraph extends View {
             // Draw x-axis label text
             if (mShowAxis) {
                 mPaint.setColor(bar.getColor());
-                mPaint.setTextSize(AXIS_LABEL_FONT_SIZE * scaledDensity);
+
+                int fontModifier = 0;
+                do {
+                    mPaint.setTextSize((AXIS_LABEL_FONT_SIZE - fontModifier) * scaledDensity);
+                    fontModifier -= 0.1;
+                } while (mPaint.measureText(bar.getName()) < barWidth * 0.85);
                 float x = mRectF.centerX() - (mPaint.measureText(bar.getName()) / 2f);
                 float y = getHeight() - 3 * scaledDensity;
                 canvas.drawText(bar.getName(), x, y, mPaint);
@@ -174,7 +179,7 @@ public class BarGraph extends View {
         float y = event.getY();
 
         int count = 0;
-        for (Bar bar: mBars) {
+        for (Bar bar : mBars) {
             if (event.getAction() == MotionEvent.ACTION_DOWN && bar.getRect().contains(x, y)) {
                 mIndexSelected = count;
             } else if (event.getAction() == MotionEvent.ACTION_UP &&

@@ -33,8 +33,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import hugo.weaving.DebugLog;
 
@@ -60,7 +58,6 @@ public class MainActivity extends Activity
     private CharSequence mTitle;
     private SparseArray<Fragment> mFrags = new SparseArray<Fragment>();
 
-    private ServerSocket mServerSocket;
     private Socket mSocket;
 
     @Override
@@ -81,6 +78,10 @@ public class MainActivity extends Activity
         mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
+        startServerSocket();
+    }
+
+    private void startServerSocket() {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -94,7 +95,7 @@ public class MainActivity extends Activity
     }
 
     private void receiveFromServer() throws IOException {
-        mServerSocket = new ServerSocket(SERVER_PORT);
+        ServerSocket mServerSocket = new ServerSocket(SERVER_PORT);
         mSocket = mServerSocket.accept();
 
         IronMessage.UserInfo.Builder userInfo = IronMessage.UserInfo.newBuilder()
@@ -109,8 +110,13 @@ public class MainActivity extends Activity
         InputStream in = mSocket.getInputStream();
 
         msg.writeDelimitedTo(out);
-        String uid = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
+        String uid = String.valueOf(System.currentTimeMillis());
         Log.d(TAG, "uid = " + uid);
+
+        boolean mkdirs = new File(getExternalFilesDir(null), uid).mkdirs();
+        if (!mkdirs) {
+            Log.d(TAG, "Directory not made.");
+        }
 
         int i = 0;
 
@@ -132,10 +138,14 @@ public class MainActivity extends Activity
                 }
 
                 showToast(toastMessage);
+
+                FileOutputStream fos = new FileOutputStream(new File(getExternalFilesDir(null), uid + File.separator + "workout_info"));
+                workoutInfo.writeTo(fos);
+                fos.close();
                 break;
             }
 
-            if (i++ < 5) {
+            if (i++ < 0) {
                 Log.d(TAG, "SKIP " + i);
                 continue;
             } else {
@@ -156,11 +166,6 @@ public class MainActivity extends Activity
             showToast(toastMessage);
         }
 
-        boolean mkdirs = new File(getExternalFilesDir(null), uid).mkdirs();
-        if (!mkdirs) {
-            Log.d(TAG, "Directory not made.");
-        }
-
         File vidFile = new File(getExternalFilesDir(null), uid + File.separator + "video.mp4");
         inputStreamToFile(in, vidFile);
 
@@ -168,6 +173,23 @@ public class MainActivity extends Activity
         mServerSocket.close();
 
         promptPlayVideo(vidFile);
+
+        final LogFragment logFrag = (LogFragment) getFragType(LogFragment.class);
+        if (logFrag != null) {
+            logFrag.refreshGraphAsync();
+        }
+
+        startServerSocket();
+    }
+
+    private Fragment getFragType(Class clss) {
+        for (int k = 0; k < mFrags.size(); k++) {
+            Fragment fr = mFrags.valueAt(k);
+            if (fr.getClass().equals(clss)) {
+                return fr;
+            }
+        }
+        return null;
     }
 
     private void inputStreamToFile(InputStream in, File vidFile) throws IOException {

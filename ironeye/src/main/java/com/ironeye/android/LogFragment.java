@@ -10,12 +10,28 @@ import android.view.ViewGroup;
 import com.ironeye.android.holograph.Bar;
 import com.ironeye.android.holograph.BarGraph;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.Date;
 
 import hugo.weaving.DebugLog;
 
+import static com.ironeye.IronEyeProtos.IronMessage;
+
 public class LogFragment extends Fragment {
+
+    public static final float BAR_PADDING = 1.5f;
+    public static final int BAR_SIZE = 150;
+    private BarGraph bg;
+    private Runnable refreshGraphTask = new Runnable() {
+        @Override
+        public void run() {
+            refreshGraph();
+        }
+    };
 
     public LogFragment() {
     }
@@ -25,8 +41,7 @@ public class LogFragment extends Fragment {
      * number.
      */
     public static LogFragment newInstance() {
-        LogFragment fragment = new LogFragment();
-        return fragment;
+        return new LogFragment();
     }
 
     @DebugLog
@@ -34,36 +49,80 @@ public class LogFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.log_fragment, container, false);
+        bg = (BarGraph) rootView.findViewById(R.id.graph);
 
-        Random rnd = new Random();
+        refreshGraph();
 
-        ArrayList<Bar> points = new ArrayList<Bar>();
-        for (int i = 1; i <= 31; i++) {
-            Bar d = new Bar();
-            float rndFloat = rnd.nextFloat();
-            int val = (int) (50 + 30 * rndFloat);
-            d.setColor(Color.rgb((int) (rndFloat * 74), (int) (rndFloat * 131), (int) (rndFloat * 255)));
-            d.setValue(val);
-            d.setName("Jan. " + i);
-            points.add(d);
-        }
+        return rootView;
+    }
 
-        BarGraph g = (BarGraph) rootView.findViewById(R.id.graph);
-        g.setPadding(1.5f);
-        g.setBars(points);
-        g.setBarSize(150);
+    public void refreshGraphAsync() {
+        getActivity().runOnUiThread(refreshGraphTask);
+    }
 
-        g.setOnBarClickedListener(new BarGraph.OnBarClickedListener() {
+    public void refreshGraph() {
+        ArrayList<Bar> points = addPoints();
+
+        bg.setPadding(BAR_PADDING);
+        bg.setBarSize(BAR_SIZE);
+
+        bg.setBars(points);
+
+        bg.setOnBarClickedListener(new BarGraph.OnBarClickedListener() {
 
             @DebugLog
             @Override
             public void onClick(int index) {
-
+                onBarClick(index);
             }
         });
 
-        g.invalidate();
+        bg.invalidate();
+    }
 
-        return rootView;
+    private ArrayList<Bar> addPoints() {
+        ArrayList<Bar> points = new ArrayList<Bar>();
+        File mainDir = getActivity().getExternalFilesDir(null);
+        if (mainDir == null || !mainDir.isDirectory() || !mainDir.canRead()) {
+            return points;
+        }
+
+        File[] dirs = mainDir.listFiles();
+        if (dirs == null || dirs.length == 0) {
+            return points;
+        }
+
+        for (File dayDir : dirs) {
+            if (!dayDir.canRead()) {
+                continue;
+            }
+
+            IronMessage.WorkoutInfo workoutInfo;
+            try {
+                workoutInfo = IronMessage.WorkoutInfo.parseFrom(
+                        new FileInputStream(new File(dayDir, "workout_info")));
+            } catch (IOException e) {
+                e.printStackTrace();
+                continue;
+            }
+
+            int maxWeight = -1;
+            for (IronMessage.Set set : workoutInfo.getSetList()) {
+                int weight = set.getWeight();
+                maxWeight = Math.max(maxWeight, weight);
+            }
+
+            Bar d = new Bar();
+            d.setColor(Color.BLUE);
+            d.setValue(maxWeight);
+            d.setName(new SimpleDateFormat("MMM. d").format(new Date(Long.parseLong(dayDir.getName()))));
+            points.add(d);
+        }
+
+        return points;
+    }
+
+    private void onBarClick(int i) {
+
     }
 }
