@@ -15,17 +15,19 @@ import java.util.Scanner;
 import static com.ironeye.IronEyeProtos.IronMessage;
 
 public class MyServer {
-    public static final String PHONE_HOST = "localhost";
-    public static final int PHONE_PORT = 38300;
+    public static final String PHONE_HOST = MiddleServerProperties.get("phone_host");
+    public static final int PHONE_PORT = MiddleServerProperties.getInt("phone_port");
 
-    public static final String SERVER_HOST = "192.168.1.102";
-    public static final int SERVER_PORT = 4000;
+    public static final String SERVER_HOST = MiddleServerProperties.get("server_host");
+    public static final int SERVER_PORT = MiddleServerProperties.getInt("server_port");
 
     private static Socket socketToPhone, socketToServer;
 
     public static void main(String[] args) throws IOException {
         execAdb();
-        //runMockServerAsync();
+        if (MiddleServerProperties.getBoolean("use_mock")) {
+            runMockServerAsync();
+        }
         String id = scanQr();
 
         socketToPhone = new Socket(PHONE_HOST, PHONE_PORT);
@@ -212,7 +214,7 @@ public class MyServer {
 
     private static void execAdb() {
         try {
-            Process p = Runtime.getRuntime().exec("adb forward tcp:38300 tcp:38300");
+            Process p = Runtime.getRuntime().exec("adb forward tcp:" + PHONE_PORT + " tcp:" + PHONE_PORT);
             Scanner sc = new Scanner(p.getErrorStream());
             if (sc.hasNext()) {
                 while (sc.hasNext()) {
