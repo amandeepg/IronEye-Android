@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,7 +25,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.plus.PlusClient;
-import com.ironeye.IronEyeProtos;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,7 +35,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 
 import hugo.weaving.DebugLog;
 
@@ -59,7 +58,7 @@ public class MainActivity extends Activity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
-    private HashMap<Integer, Fragment> mFrags = new HashMap<Integer, Fragment>();
+    private SparseArray<Fragment> mFrags = new SparseArray<Fragment>();
 
     private ServerSocket mServerSocket;
     private Socket mSocket;
@@ -253,7 +252,8 @@ public class MainActivity extends Activity
     }
 
     private void hideFrags(Fragment exemptFrag, FragmentTransaction ft) {
-        for (Fragment fr : mFrags.values()) {
+        for (int i = 0; i < mFrags.size(); i++) {
+            Fragment fr = mFrags.valueAt(i);
             if (fr != exemptFrag) {
                 ft.hide(fr);
             }
