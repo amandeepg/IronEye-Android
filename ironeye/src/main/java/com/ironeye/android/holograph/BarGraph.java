@@ -29,6 +29,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -37,7 +38,8 @@ import java.util.ArrayList;
 public class BarGraph extends View {
 
     public static final int HIGHLIGHT_COLOUR = Color.parseColor("#33B5E5");
-    private final static int AXIS_LABEL_FONT_SIZE = 15;
+    private final static int AXIS_LABEL_FONT_SIZE_MAX = 20;
+    private static final String TAG = "BarGraph";
     private ArrayList<Bar> mBars = new ArrayList<Bar>();
     private boolean mShowAxis = true;
     private int mIndexSelected = -1;
@@ -141,11 +143,11 @@ public class BarGraph extends View {
             if (mShowAxis) {
                 mPaint.setColor(bar.getColor());
 
-                int fontModifier = 0;
+                float fontModifier = 0;
                 do {
-                    mPaint.setTextSize((AXIS_LABEL_FONT_SIZE - fontModifier) * scaledDensity);
-                    fontModifier -= 0.1;
-                } while (mPaint.measureText(bar.getName()) < barWidth * 0.85);
+                    mPaint.setTextSize((AXIS_LABEL_FONT_SIZE_MAX - fontModifier) * scaledDensity);
+                    fontModifier += 0.5;
+                } while (mPaint.measureText(bar.getName()) > barWidth * 0.85);
                 float x = mRectF.centerX() - (mPaint.measureText(bar.getName()) / 2f);
                 float y = getHeight() - 3 * scaledDensity;
                 canvas.drawText(bar.getName(), x, y, mPaint);
