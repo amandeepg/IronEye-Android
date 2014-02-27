@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import com.ironeye.android.holograph.Bar;
 import com.ironeye.android.holograph.BarGraph;
+import com.ironeye.android.holograph.YAxisView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,6 +51,8 @@ public class LogFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.log_fragment, container, false);
         bg = (BarGraph) rootView.findViewById(R.id.graph);
+        YAxisView yaxisView = (YAxisView) rootView.findViewById(R.id.y_axis_view);
+        bg.setYAxis(yaxisView);
 
         refreshGraph();
 

@@ -29,7 +29,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -51,7 +50,10 @@ public class BarGraph extends View {
     private RectF mRectClip = new RectF();
     private RectF mRectF = new RectF();
 
-    private Context mContext = null;
+    private Context mContext;
+    private YAxisView yaxisView;
+
+    private float maxValue = 0;
 
     public BarGraph(Context context) {
         super(context);
@@ -79,8 +81,23 @@ public class BarGraph extends View {
         return this.mBars;
     }
 
+    public void setYAxis(YAxisView yaxisView) {
+        this.yaxisView = yaxisView;
+    }
+
     public void setBars(ArrayList<Bar> points) {
         this.mBars = points;
+
+        // Maximum y value = sum of all values.
+        for (final Bar bar : mBars) {
+            if (bar.getValue() > maxValue) {
+                maxValue = bar.getValue();
+            }
+        }
+        if (yaxisView != null) {
+            yaxisView.setMax((int) Math.ceil(maxValue));
+        }
+
         postInvalidate();
     }
 
@@ -88,7 +105,6 @@ public class BarGraph extends View {
         canvas.drawColor(Color.TRANSPARENT);
         mPaint.setAntiAlias(true);
 
-        float maxValue = 0;
         float density = mContext.getResources().getDisplayMetrics().density;
         float scaledDensity = mContext.getResources().getDisplayMetrics().scaledDensity;
         float padding = mPadding * density;
@@ -105,13 +121,6 @@ public class BarGraph extends View {
             canvas.drawLine(0, getHeight() - bottomPadding + 10 * density, getWidth(), getHeight() - bottomPadding + 10 * density, mPaint);
         }
         float barWidth = (getWidth() - (padding * 2) * mBars.size()) / mBars.size();
-
-        // Maximum y value = sum of all values.
-        for (final Bar bar : mBars) {
-            if (bar.getValue() > maxValue) {
-                maxValue = bar.getValue();
-            }
-        }
 
         int count = 0;
         for (final Bar bar : mBars) {
