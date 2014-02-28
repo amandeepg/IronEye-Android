@@ -12,12 +12,16 @@ import com.nhaarman.listviewanimations.swinginadapters.AnimationAdapter;
 import com.nhaarman.listviewanimations.swinginadapters.prepared.SwingRightInAnimationAdapter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 
 public class TrackFragment extends Fragment {
+
+    @InjectView(R.id.listView)
+    ListView lv;
 
     private ArrayList<Map<String, String>> mLst;
     private SimpleAdapter mAdapter;
@@ -38,9 +42,8 @@ public class TrackFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.real_time_fragment, container, false);
-
-        final ListView lv = (ListView) rootView.findViewById(R.id.listView);
+        final View view = inflater.inflate(R.layout.real_time_fragment, container, false);
+        ButterKnife.inject(this, view);
 
         mLst = new ArrayList<Map<String, String>>();
         final String[] from = {"name", "msg"};
@@ -51,7 +54,7 @@ public class TrackFragment extends Fragment {
         mAnimationAdapter.setAbsListView(lv);
         lv.setAdapter(mAnimationAdapter);
 
-        return rootView;
+        return view;
     }
 
     public void refreshListAsync(final ArrayList<Map<String, String>> lst) {
@@ -69,5 +72,11 @@ public class TrackFragment extends Fragment {
         mLst.clear();
         mLst.addAll(lst);
         mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.reset(this);
     }
 }

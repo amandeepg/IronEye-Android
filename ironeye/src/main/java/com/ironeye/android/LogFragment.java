@@ -18,6 +18,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 
 import static com.ironeye.IronEyeProtos.IronMessage;
@@ -26,13 +28,18 @@ public class LogFragment extends Fragment {
 
     public static final float BAR_PADDING = 1.5f;
     public static final int BAR_SIZE = 150;
-    private BarGraph bg;
-    private Runnable refreshGraphTask = new Runnable() {
+    private final Runnable refreshGraphTask = new Runnable() {
         @Override
         public void run() {
             refreshGraph();
         }
     };
+
+    @InjectView(R.id.graph)
+    BarGraph bg;
+
+    @InjectView(R.id.y_axis_view)
+    YAxisView yaxisView;
 
     public LogFragment() {
     }
@@ -47,16 +54,14 @@ public class LogFragment extends Fragment {
 
     @DebugLog
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.log_fragment, container, false);
-        bg = (BarGraph) rootView.findViewById(R.id.graph);
-        YAxisView yaxisView = (YAxisView) rootView.findViewById(R.id.y_axis_view);
-        bg.setYAxis(yaxisView);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final View view = inflater.inflate(R.layout.log_fragment, container, false);
+        ButterKnife.inject(this, view);
 
+        bg.setYAxis(yaxisView);
         refreshGraph();
 
-        return rootView;
+        return view;
     }
 
     public void refreshGraphAsync() {
@@ -68,9 +73,7 @@ public class LogFragment extends Fragment {
 
         bg.setPadding(BAR_PADDING);
         bg.setBarSize(BAR_SIZE);
-
         bg.setBars(points);
-
         bg.setOnBarClickedListener(new BarGraph.OnBarClickedListener() {
 
             @DebugLog
@@ -103,7 +106,7 @@ public class LogFragment extends Fragment {
             IronMessage.WorkoutInfo workoutInfo;
             try {
                 workoutInfo = IronMessage.WorkoutInfo.parseFrom(
-                        new FileInputStream(new File(dayDir, "workout_info")));
+                        new FileInputStream(new File(dayDir, AppConsts.WORKOUT_INFO_FILENAME)));
             } catch (IOException e) {
                 e.printStackTrace();
                 continue;
@@ -125,7 +128,13 @@ public class LogFragment extends Fragment {
         return points;
     }
 
-    private void onBarClick(int i) {
+    private void onBarClick(@SuppressWarnings("UnusedParameters") int i) {
 
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.reset(this);
     }
 }

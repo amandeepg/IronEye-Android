@@ -6,41 +6,29 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.plus.PlusClient;
+import com.ironeye.ServerCommThread;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 
 import static com.ironeye.IronEyeProtos.IronMessage;
@@ -50,24 +38,17 @@ public class MainActivity extends Activity
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener, TextToSpeech.OnInitListener {
 
-    public static final int SERVER_PORT = 38300;
-    private static final String TAG = "MainActivity";
-    /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-     */
+    public TextToSpeech tts;
+    @InjectView(R.id.drawer_layout)
+    DrawerLayout mDrawerLayout;
     private NavigationDrawerFragment mNavigationDrawerFragment;
-
     private PlusClient mPlusClient;
-
+    private ServerCommThread mServerCommThread;
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
     private SparseArray<Fragment> mFrags = new SparseArray<Fragment>();
-
-    private Socket mSocket;
-
-    private TextToSpeech tts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,18 +59,31 @@ public class MainActivity extends Activity
                 .build();
 
         setContentView(R.layout.main_activity);
+        ButterKnife.inject(this);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
+        mNavigationDrawerFragment.setUp(R.id.navigation_drawer, mDrawerLayout);
 
-        // Set up the drawer.
-        mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+        mTitle = getTitle();
 
         tts = new TextToSpeech(this, this);
 
         startServerSocket();
+    }
+
+    public void startServerSocket() {
+        mServerCommThread = new ServerCommThread(this);
+        mServerCommThread.start();
+    }
+
+    public void selectItemAsync(final int i) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mNavigationDrawerFragment.selectItem(i);
+            }
+        });
     }
 
     @Override
@@ -107,128 +101,7 @@ public class MainActivity extends Activity
         }
     }
 
-    private void startServerSocket() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    receiveFromServer();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-
-    private void receiveFromServer() throws IOException {
-        ServerSocket mServerSocket = new ServerSocket(SERVER_PORT);
-        mSocket = mServerSocket.accept();
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                onNavigationDrawerItemSelected(1);
-            }
-        });
-
-        IronMessage.UserInfo.Builder userInfo = IronMessage.UserInfo.newBuilder()
-                .setId(AppController.getInstance().currentPerson.getId());
-
-        IronMessage msg = IronMessage.newBuilder()
-                .setUserInfo(userInfo)
-                .setType(IronMessage.MessageType.USER_INFO)
-                .build();
-
-        OutputStream out = mSocket.getOutputStream();
-        InputStream in = mSocket.getInputStream();
-
-        msg.writeDelimitedTo(out);
-        String uid = String.valueOf(System.currentTimeMillis());
-        Log.d(TAG, "uid = " + uid);
-
-        boolean mkdirs = new File(getExternalFilesDir(null), uid).mkdirs();
-        if (!mkdirs) {
-            Log.d(TAG, "Directory not made.");
-        }
-
-        int i = 0;
-
-        while (true) {
-            IronMessage statusMsg = IronMessage.parseDelimitedFrom(in);
-            if (statusMsg.getType().equals(IronMessage.MessageType.WORKOUT_INFO)) {
-                IronMessage.WorkoutInfo workoutInfo = statusMsg.getWorkoutInfo();
-                StringBuilder toastMessage = new StringBuilder();
-
-                for (IronMessage.Set set : workoutInfo.getSetList()) {
-                    int reps = set.getReps();
-                    int weight = set.getWeight();
-                    Log.d(TAG, "reps = " + reps);
-                    Log.d(TAG, "weight = " + weight);
-
-                    toastMessage
-                            .append("Reps: ").append(reps).append(", ")
-                            .append("Weight: ").append(weight).append("\n");
-                }
-
-                showToast(toastMessage);
-
-                FileOutputStream fos = new FileOutputStream(new File(getExternalFilesDir(null), uid + File.separator + "workout_info"));
-                workoutInfo.writeTo(fos);
-                fos.close();
-                break;
-            }
-
-            if (i++ < 0) {
-                Log.d(TAG, "SKIP " + i);
-                continue;
-            } else {
-                i = 0;
-            }
-
-            ArrayList<Map<String, String>> jointListData = new ArrayList<Map<String, String>>();
-            boolean shouldVibrate = false;
-
-            IronMessage.FormErrorData formError = statusMsg.getErrorData();
-            for (IronMessage.JointError je : formError.getJointList()) {
-                String jointType = je.getJointType().toString();
-                String jointMsg = je.getErrorMessage();
-
-                HashMap<String, String> item = new HashMap<String, String>();
-                item.put("name", jointType);
-                item.put("msg", jointMsg);
-                jointListData.add(item);
-
-                tts.speak(jointType.replace("_", " "), TextToSpeech.QUEUE_ADD, null);
-                shouldVibrate = true;
-            }
-            if (shouldVibrate) {
-                Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                vib.vibrate(200);
-            }
-
-            final TrackFragment logFrag = (TrackFragment) getFragType(TrackFragment.class);
-            if (logFrag != null) {
-                logFrag.refreshListAsync(jointListData);
-            }
-        }
-
-        File vidFile = new File(getExternalFilesDir(null), uid + File.separator + "video.mp4");
-        inputStreamToFile(in, vidFile);
-
-        mSocket.close();
-        mServerSocket.close();
-
-        promptPlayVideo(vidFile);
-
-        final LogFragment logFrag = (LogFragment) getFragType(LogFragment.class);
-        if (logFrag != null) {
-            logFrag.refreshGraphAsync();
-        }
-
-        startServerSocket();
-    }
-
-    private Fragment getFragType(Class clss) {
+    public Fragment getFragType(Class clss) {
         for (int k = 0; k < mFrags.size(); k++) {
             Fragment fr = mFrags.valueAt(k);
             if (fr.getClass().equals(clss)) {
@@ -238,19 +111,7 @@ public class MainActivity extends Activity
         return null;
     }
 
-    private void inputStreamToFile(InputStream in, File vidFile) throws IOException {
-        FileOutputStream fos = new FileOutputStream(vidFile);
-
-        int read;
-        byte[] bytes = new byte[1024];
-        while ((read = in.read(bytes)) != -1) {
-            fos.write(bytes, 0, read);
-        }
-
-        fos.close();
-    }
-
-    private void promptPlayVideo(final File vidFile) {
+    public void promptPlayVideo(final File vidFile) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -277,7 +138,7 @@ public class MainActivity extends Activity
         });
     }
 
-    private void showToast(final StringBuilder toastMessage) {
+    public void showToast(final StringBuilder toastMessage) {
         if (toastMessage.length() < 1) {
             return;
         }
@@ -376,31 +237,14 @@ public class MainActivity extends Activity
                 }
                 break;
             case R.id.start_set_action:
-                sendSetControlMsg(IronMessage.MessageType.SET_START);
+                mServerCommThread.sendControlMsg(IronMessage.MessageType.SET_START);
                 break;
             case R.id.end_set_action:
-                sendSetControlMsg(IronMessage.MessageType.SET_END);
+                mServerCommThread.sendControlMsg(IronMessage.MessageType.SET_END);
                 break;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void sendSetControlMsg(final IronMessage.MessageType type) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                IronMessage msg = IronMessage.newBuilder()
-                        .setType(type)
-                        .build();
-
-                try {
-                    msg.writeDelimitedTo(mSocket.getOutputStream());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
     }
 
     @DebugLog
@@ -433,40 +277,4 @@ public class MainActivity extends Activity
         super.onStop();
         mPlusClient.disconnect();
     }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public PlaceholderFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.main_placeholder_fragment, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
-    }
-
 }
