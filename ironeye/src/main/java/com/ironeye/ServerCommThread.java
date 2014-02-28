@@ -8,9 +8,7 @@ import android.util.Log;
 import com.ironeye.android.AppConsts;
 import com.ironeye.android.AppController;
 import com.ironeye.android.FileUtils;
-import com.ironeye.android.LogFragment;
 import com.ironeye.android.MainActivity;
-import com.ironeye.android.TrackFragment;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -125,11 +123,10 @@ public class ServerCommThread extends Thread {
                 vib.vibrate(200);
             }
 
-            final TrackFragment logFrag = (TrackFragment) mAct.getFragType(TrackFragment.class);
-            if (logFrag != null) {
-                logFrag.refreshListAsync(jointListData);
-            }
+            mAct.refreshTrackingList(jointListData);
         }
+        mAct.refreshTrackingList(new ArrayList<Map<String, String>>());
+        mAct.refreshLogGraph();
 
         File vidFile = FileUtils.getDayFile(mAct, uid, AppConsts.VIDEO_FILENAME);
         FileUtils.inputStreamToFile(in, vidFile);
@@ -138,12 +135,6 @@ public class ServerCommThread extends Thread {
         mServerSocket.close();
 
         mAct.promptPlayVideo(vidFile);
-
-        final LogFragment logFrag = (LogFragment) mAct.getFragType(LogFragment.class);
-        if (logFrag != null) {
-            logFrag.refreshGraphAsync();
-        }
-
         mAct.startServerSocket();
     }
 

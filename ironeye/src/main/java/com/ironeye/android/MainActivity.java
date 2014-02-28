@@ -25,7 +25,9 @@ import com.google.android.gms.plus.PlusClient;
 import com.ironeye.ServerCommThread;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -101,7 +103,7 @@ public class MainActivity extends Activity
         }
     }
 
-    public Fragment getFragType(Class clss) {
+    private Fragment getFragType(Class clss) {
         for (int k = 0; k < mFrags.size(); k++) {
             Fragment fr = mFrags.valueAt(k);
             if (fr.getClass().equals(clss)) {
@@ -109,6 +111,20 @@ public class MainActivity extends Activity
             }
         }
         return null;
+    }
+
+    public void refreshLogGraph() {
+        final LogFragment logFrag = (LogFragment) getFragType(LogFragment.class);
+        if (logFrag != null) {
+            logFrag.refreshGraphAsync();
+        }
+    }
+
+    public void refreshTrackingList(ArrayList<Map<String, String>> jointListData) {
+        final TrackFragment logFrag = (TrackFragment) getFragType(TrackFragment.class);
+        if (logFrag != null) {
+            logFrag.refreshListAsync(jointListData);
+        }
     }
 
     public void promptPlayVideo(final File vidFile) {
