@@ -94,16 +94,16 @@ public class MyServer {
         }).start();
 
         for (int i = 0; i < 3; i++) {
-            Thread.sleep(5000 - i * 300);
+            Thread.sleep(8000 - i * 300);
 
             IronMessage.JointError je1 = IronMessage.JointError.newBuilder()
-                    .setJointType(IronMessage.JointType.LEFT_FOOT)
-                    .setErrorMessage("Wrong")
+                    .setJointType(Math.random() > 0.5 ? IronMessage.JointType.LEFT_HIP : IronMessage.JointType.RIGHT_HAND)
+                    .setErrorMessage(Math.random() > 0.5 ? "Wrong" : "Bad")
                     .build();
 
             IronMessage.JointError je2 = IronMessage.JointError.newBuilder()
-                    .setJointType(IronMessage.JointType.LEFT_FOOT)
-                    .setErrorMessage("Wrong")
+                    .setJointType(Math.random() > 0.5 ? IronMessage.JointType.LEFT_FOOT : IronMessage.JointType.RIGHT_ELBOW)
+                    .setErrorMessage(Math.random() > 0.5 ? "Wrong" : "Bad")
                     .build();
 
             ArrayList<IronMessage.JointError> jes = new ArrayList<IronMessage.JointError>();

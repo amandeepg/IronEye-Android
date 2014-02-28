@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
+    android:background="#E5E5E5">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:layout_height="0dp">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:text="Start Set"
+            android:id="@+id/button"
+            android:layout_gravity="center_vertical" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:text="End Exercise"
+            android:id="@+id/button2"
+            android:layout_gravity="center_vertical" />
+    </LinearLayout>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:id="@+id/listView"
+        android:layout_weight="3"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="0dp"
+        android:layout_gravity="center_horizontal"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="3dp"
+        tools:listitem="@layout/card_two_item" />
+</LinearLayout>

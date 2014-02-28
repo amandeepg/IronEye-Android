@@ -6,10 +6,13 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Vibrator;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.util.SparseArray;
@@ -33,6 +36,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 import hugo.weaving.DebugLog;
 
@@ -41,7 +48,7 @@ import static com.ironeye.IronEyeProtos.IronMessage;
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
         GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener {
+        GooglePlayServicesClient.OnConnectionFailedListener, TextToSpeech.OnInitListener {
 
     public static final int SERVER_PORT = 38300;
     private static final String TAG = "MainActivity";
@@ -59,6 +66,8 @@ public class MainActivity extends Activity
     private SparseArray<Fragment> mFrags = new SparseArray<Fragment>();
 
     private Socket mSocket;
+
+    private TextToSpeech tts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +87,24 @@ public class MainActivity extends Activity
         mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
+        tts = new TextToSpeech(this, this);
+
         startServerSocket();
+    }
+
+    @Override
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+            int result = tts.setLanguage(Locale.US);
+
+            if (result == TextToSpeech.LANG_MISSING_DATA
+                    || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS", "This Language is not supported");
+            }
+
+        } else {
+            Log.e("TTS", "Initilization Failed!");
+        }
     }
 
     private void startServerSocket() {
@@ -97,6 +123,13 @@ public class MainActivity extends Activity
     private void receiveFromServer() throws IOException {
         ServerSocket mServerSocket = new ServerSocket(SERVER_PORT);
         mSocket = mServerSocket.accept();
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                onNavigationDrawerItemSelected(1);
+            }
+        });
 
         IronMessage.UserInfo.Builder userInfo = IronMessage.UserInfo.newBuilder()
                 .setId(AppController.getInstance().currentPerson.getId());
@@ -152,18 +185,31 @@ public class MainActivity extends Activity
                 i = 0;
             }
 
+            ArrayList<Map<String, String>> jointListData = new ArrayList<Map<String, String>>();
+            boolean shouldVibrate = false;
+
             IronMessage.FormErrorData formError = statusMsg.getErrorData();
-            StringBuilder toastMessage = new StringBuilder();
             for (IronMessage.JointError je : formError.getJointList()) {
                 String jointType = je.getJointType().toString();
                 String jointMsg = je.getErrorMessage();
-                Log.d(TAG, "status = " + jointType + " - " + jointMsg);
-                toastMessage
-                        .append(jointType).append(": ")
-                        .append(jointMsg).append("\n");
+
+                HashMap<String, String> item = new HashMap<String, String>();
+                item.put("name", jointType);
+                item.put("msg", jointMsg);
+                jointListData.add(item);
+
+                tts.speak(jointType.replace("_", " "), TextToSpeech.QUEUE_ADD, null);
+                shouldVibrate = true;
+            }
+            if (shouldVibrate) {
+                Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                vib.vibrate(200);
             }
 
-            showToast(toastMessage);
+            final TrackFragment logFrag = (TrackFragment) getFragType(TrackFragment.class);
+            if (logFrag != null) {
+                logFrag.refreshListAsync(jointListData);
+            }
         }
 
         File vidFile = new File(getExternalFilesDir(null), uid + File.separator + "video.mp4");
@@ -260,7 +306,7 @@ public class MainActivity extends Activity
                     frag = LogFragment.newInstance();
                     break;
                 default:
-                    frag = PlaceholderFragment.newInstance(position);
+                    frag = TrackFragment.newInstance();
             }
             mFrags.put(position, frag);
             ft.add(R.id.container, frag);
