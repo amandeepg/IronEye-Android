@@ -1,14 +1,11 @@
-package com.ironeye;
+package com.ironeye.android;
 
 import android.content.Context;
 import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
-import com.ironeye.android.AppConsts;
-import com.ironeye.android.AppController;
-import com.ironeye.android.FileUtils;
-import com.ironeye.android.MainActivity;
+import com.ironeye.IronEyeProtos;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -68,7 +65,6 @@ public class ServerCommThread extends Thread {
             Log.d(TAG, "Directory not made.");
         }
 
-        int i = 0;
         final IronEyeProtos.IronMessage.WorkoutInfo workoutInfo;
 
         while (true) {
@@ -76,13 +72,6 @@ public class ServerCommThread extends Thread {
             if (statusMsg.getType().equals(IronEyeProtos.IronMessage.MessageType.WORKOUT_INFO)) {
                 workoutInfo = statusMsg.getWorkoutInfo();
                 break;
-            }
-
-            if (i++ < 0) {
-                Log.d(TAG, "SKIP " + i);
-                continue;
-            } else {
-                i = 0;
             }
 
             ArrayList<Map<String, String>> jointListData = new ArrayList<Map<String, String>>();
@@ -109,21 +98,6 @@ public class ServerCommThread extends Thread {
             mAct.refreshTrackingList(jointListData);
         }
 
-        final StringBuilder toastMessage = new StringBuilder();
-
-        for (IronEyeProtos.IronMessage.Set set : workoutInfo.getSetList()) {
-            final int reps = set.getReps();
-            final int weight = set.getWeight();
-            Log.d(TAG, "reps = " + reps);
-            Log.d(TAG, "weight = " + weight);
-
-            toastMessage
-                    .append("Reps: ").append(reps).append(", ")
-                    .append("Weight: ").append(weight).append("\n");
-        }
-
-        mAct.showToast(toastMessage);
-
         final FileOutputStream fos = new FileOutputStream(FileUtils.getDayFile(mAct, uid, AppConsts.WORKOUT_INFO_FILENAME));
         workoutInfo.writeTo(fos);
         fos.close();
@@ -135,10 +109,11 @@ public class ServerCommThread extends Thread {
         final File vidFile = FileUtils.getDayFile(mAct, uid, AppConsts.VIDEO_FILENAME);
         FileUtils.inputStreamToFile(in, vidFile);
 
+        mAct.videoReady(uid);
+
         mSocket.close();
         mServerSocket.close();
 
-        mAct.promptPlayVideo(vidFile);
         mAct.startServerSocket();
     }
 

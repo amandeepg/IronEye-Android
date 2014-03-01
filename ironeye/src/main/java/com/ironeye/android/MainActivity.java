@@ -2,13 +2,10 @@ package com.ironeye.android;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.widget.DrawerLayout;
@@ -16,17 +13,12 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
-import android.widget.TwoLineListItem;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.plus.PlusClient;
-import com.ironeye.ServerCommThread;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
@@ -43,8 +35,10 @@ public class MainActivity extends Activity
         GooglePlayServicesClient.OnConnectionFailedListener, TextToSpeech.OnInitListener {
 
     public TextToSpeech tts;
+
     @InjectView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
+
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private PlusClient mPlusClient;
     private ServerCommThread mServerCommThread;
@@ -136,51 +130,20 @@ public class MainActivity extends Activity
         }
     }
 
+    public void videoReady(final String uid) {
+        final TrackFragment trackFrag = getTrackFragment();
+        if (trackFrag != null) {
+            trackFrag.setUid(uid);
+            trackFrag.setVideoReady(true);
+        }
+    }
+
     private TrackFragment getTrackFragment() {
         return (TrackFragment) getFragType(TrackFragment.class);
     }
 
     private LogFragment getLogFragment() {
         return (LogFragment) getFragType(LogFragment.class);
-    }
-
-    public void promptPlayVideo(final File vidFile) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case DialogInterface.BUTTON_POSITIVE:
-                                Intent intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setDataAndType(Uri.fromFile(vidFile), "video/*");
-                                startActivity(intent);
-                                break;
-
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                break;
-                        }
-                    }
-                };
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setMessage("Play Video?").setPositiveButton("Yes", dialogClickListener)
-                        .setNegativeButton("No", dialogClickListener).show();
-            }
-        });
-    }
-
-    public void showToast(final StringBuilder toastMessage) {
-        if (toastMessage.length() < 1) {
-            return;
-        }
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(MainActivity.this, toastMessage.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     @Override
@@ -200,7 +163,7 @@ public class MainActivity extends Activity
                     frag = LogFragment.newInstance();
                     break;
                 default:
-                    frag = TrackFragment.newInstance();
+                    frag = new TrackFragment(TrackFragment.REAL_TIME_TYPE);
             }
             mFrags.put(position, frag);
             ft.add(R.id.container, frag);

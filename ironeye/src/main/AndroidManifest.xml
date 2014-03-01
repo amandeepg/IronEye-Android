@@ -5,22 +5,22 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:name=".AppController"
+        android:name="com.ironeye.android.AppController"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".SignInActivity"
+            android:name="com.ironeye.android.SignInActivity"
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name=".SplashActivity"
-            android:theme="@android:style/Theme.NoTitleBar"
-            android:label="@string/app_name" >
+            android:name="com.ironeye.android.SplashActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,8 +28,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name="com.ironeye.android.MainActivity"
             android:label="@string/app_name" >
+        </activity>
+
+        <activity
+            android:name="com.ironeye.android.ReviewPastActivity"
+            android:label="@string/title_activity_review_past" >
         </activity>
 
         <meta-data

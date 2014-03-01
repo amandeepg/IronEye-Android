@@ -2,6 +2,7 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,6 +13,7 @@
     android:background="#E5E5E5">
 
     <LinearLayout
+        android:id="@+id/controls"
         android:orientation="horizontal"
         style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
@@ -49,13 +51,56 @@
         android:dividerHeight="3dp"
         tools:listitem="@layout/card_two_item" />
 
-
     <LinearLayout
         android:id="@+id/workout_info"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    </LinearLayout>
+        <LinearLayout
+            android:id="@+id/sets_info"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
+            <!--<include layout="@layout/rep_weight_card"></include>-->
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:background="@drawable/card">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="7dp"
+                android:paddingLeft="7dp"
+                android:background="@drawable/card"
+                android:layout_gravity="center">
+
+                <com.devspark.robototextview.widget.RobotoTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Review your form:"
+                    android:layout_gravity="center"
+                    app:typeface="roboto_regular"
+                    android:textSize="20sp" />
+
+                <com.devspark.robototextview.widget.RobotoButton
+                    android:id="@+id/play_video_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/play_video"
+                    android:layout_margin="7dp"
+                    android:enabled="false"
+                    app:typeface="roboto_regular"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+        </FrameLayout>
+    </LinearLayout>
 </LinearLayout>

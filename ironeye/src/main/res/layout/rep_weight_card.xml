@@ -6,49 +6,65 @@
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/card"
-    android:paddingRight="7dp"
-    android:paddingTop="7dp"
-    android:paddingBottom="7dp"
-    android:paddingLeft="7dp"
     android:layout_margin="3dp"
     android:layout_weight="1">
 
     <com.devspark.robototextview.widget.RobotoTextView
-        android:id="@+id/rep_count"
+        android:id="@+id/set_num"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        app:typeface="roboto_slab_bold"
-        android:gravity="center_horizontal"
-        android:textSize="40sp"
-        tools:text="35" />
-
-    <com.devspark.robototextview.widget.RobotoTextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="-7dp"
-        app:typeface="roboto_condensed_light"
+        app:typeface="roboto_condensed_regular"
         android:gravity="center_horizontal"
         android:textSize="12sp"
-        android:text="@string/reps"/>
+        tools:text="Set 1"/>
 
-    <com.devspark.robototextview.widget.RobotoTextView
-        android:id="@+id/weight_for_set"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        app:typeface="roboto_slab_bold"
-        android:gravity="center_horizontal"
-        android:textSize="40sp"
-        tools:text="135" />
+        android:background="@drawable/card"
+        android:paddingRight="7dp"
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp"
+        android:paddingLeft="7dp">
 
-    <com.devspark.robototextview.widget.RobotoTextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        app:typeface="roboto_condensed_light"
-        android:layout_marginTop="-7dp"
-        android:gravity="center_horizontal"
-        android:textSize="12sp"
-        android:text="@string/weight"/>
+        <com.devspark.robototextview.widget.RobotoTextView
+            android:id="@+id/rep_count"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            app:typeface="roboto_slab_bold"
+            android:gravity="center_horizontal"
+            android:textSize="40sp"
+            tools:text="35" />
+
+        <com.devspark.robototextview.widget.RobotoTextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-7dp"
+            app:typeface="roboto_condensed_light"
+            android:gravity="center_horizontal"
+            android:textSize="12sp"
+            android:text="@string/reps"/>
+
+        <com.devspark.robototextview.widget.RobotoTextView
+            android:id="@+id/weight_for_set"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:typeface="roboto_slab_bold"
+            android:gravity="center_horizontal"
+            android:textSize="40sp"
+            tools:text="135" />
+
+        <com.devspark.robototextview.widget.RobotoTextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            app:typeface="roboto_condensed_light"
+            android:layout_marginTop="-7dp"
+            android:gravity="center_horizontal"
+            android:textSize="12sp"
+            android:text="@string/weight"/>
+
+    </LinearLayout>
 
 </LinearLayout>

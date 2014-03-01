@@ -4,7 +4,7 @@
     <string name="app_name">IronEye</string>
     <string name="signing_in">Signing in …</string>
     <string name="title_section1">Connect</string>
-    <string name="title_section2">Section 2</string>
+    <string name="title_section2">Realtime Tracker</string>
     <string name="title_section3">Workout Log</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -19,5 +19,9 @@
     <string name="max_weight_per_exercise">Max Weight per Exercise</string>
     <string name="reps">Reps</string>
     <string name="weight">Weight</string>
+    <string name="play_video">Play Video</string>
+    <string name="title_activity_review_past">Log Entry</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
 </resources>

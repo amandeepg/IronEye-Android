@@ -3,7 +3,7 @@ apply plugin: 'hugo'
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.1"
+    buildToolsVersion '19.0.1'
 
     defaultConfig {
         minSdkVersion 17
@@ -42,11 +42,10 @@ dependencies {
   //  compile 'se.emilsjolander:sprinkles:1.1.3'
     compile 'com.google.android.gms:play-services:4.+'
     compile 'com.android.support:support-v4:19.+'
-  //  compile 'com.jakewharton.timber:timber:2.1.0'
+    //  compile 'com.jakewharton.timber:timber:2.1.0'
     compile 'com.github.johnkil.android-robototextview:robototextview:2.0.0'
     compile 'com.google.protobuf:protobuf-java:2.5.0'
     compile 'com.nhaarman.listviewanimations:library:2.6.0'
     compile 'com.jakewharton:butterknife:4.0.1'
-
     compile fileTree(dir: 'libs', include: '*.jar')
 }
