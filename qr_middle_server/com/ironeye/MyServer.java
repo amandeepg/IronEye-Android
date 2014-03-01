@@ -94,7 +94,7 @@ public class MyServer {
         }).start();
 
         for (int i = 0; i < 3; i++) {
-            Thread.sleep(8000 - i * 300);
+            Thread.sleep(3000 - i * 300);
 
             IronMessage.JointError je1 = IronMessage.JointError.newBuilder()
                     .setJointType(Math.random() > 0.5 ? IronMessage.JointType.LEFT_HIP : IronMessage.JointType.RIGHT_HAND)
@@ -121,19 +121,10 @@ public class MyServer {
             statusMsg.writeDelimitedTo(outToPhone);
         }
 
-        IronMessage.Set set1 = IronMessage.Set.newBuilder()
-                .setReps((int) (20 + (Math.random() * 20)))
-                .setWeight((int) (20 + (Math.random() * 20)))
-                .build();
-
-        IronMessage.Set set2 = IronMessage.Set.newBuilder()
-                .setReps((int) (20 + (Math.random() * 20)))
-                .setWeight((int) (20 + (Math.random() * 20)))
-                .build();
-
         ArrayList<IronMessage.Set> sets = new ArrayList<IronMessage.Set>();
-        sets.add(set1);
-        sets.add(set2);
+        sets.add(randomSet());
+        sets.add(randomSet());
+        sets.add(randomSet());
 
         IronMessage.WorkoutInfo.Builder wi = IronMessage.WorkoutInfo.newBuilder()
                 .addAllSet(sets);
@@ -150,6 +141,13 @@ public class MyServer {
         outToPhone.close();
         socketToPhone.close();
         socket.close();
+    }
+
+    private static IronMessage.Set randomSet() {
+        return IronMessage.Set.newBuilder()
+                .setReps((int) (20 + (Math.random() * 20)))
+                .setWeight((int) (20 + (Math.random() * 20)))
+                .build();
     }
 
     private static void fileToOutStream(OutputStream outToPhone, File f) throws IOException {

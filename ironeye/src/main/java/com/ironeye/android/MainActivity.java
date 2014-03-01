@@ -16,7 +16,9 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
+import android.widget.TwoLineListItem;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -114,17 +116,32 @@ public class MainActivity extends Activity
     }
 
     public void refreshLogGraph() {
-        final LogFragment logFrag = (LogFragment) getFragType(LogFragment.class);
+        final LogFragment logFrag = getLogFragment();
         if (logFrag != null) {
             logFrag.refreshGraphAsync();
         }
     }
 
-    public void refreshTrackingList(ArrayList<Map<String, String>> jointListData) {
-        final TrackFragment logFrag = (TrackFragment) getFragType(TrackFragment.class);
-        if (logFrag != null) {
-            logFrag.refreshListAsync(jointListData);
+    public void refreshTrackingList(final ArrayList<Map<String, String>> jointListData) {
+        final TrackFragment trackFrag = getTrackFragment();
+        if (trackFrag != null) {
+            trackFrag.refreshListAsync(jointListData);
         }
+    }
+
+    public void addWorkoutInfoToTrackingFrag(final IronMessage.WorkoutInfo workoutInfo) {
+        final TrackFragment trackFrag = getTrackFragment();
+        if (trackFrag != null) {
+            trackFrag.displayWorkoutInfoAsync(workoutInfo);
+        }
+    }
+
+    private TrackFragment getTrackFragment() {
+        return (TrackFragment) getFragType(TrackFragment.class);
+    }
+
+    private LogFragment getLogFragment() {
+        return (LogFragment) getFragType(LogFragment.class);
     }
 
     public void promptPlayVideo(final File vidFile) {

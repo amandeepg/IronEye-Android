@@ -69,29 +69,12 @@ public class ServerCommThread extends Thread {
         }
 
         int i = 0;
+        final IronEyeProtos.IronMessage.WorkoutInfo workoutInfo;
 
         while (true) {
             IronEyeProtos.IronMessage statusMsg = IronEyeProtos.IronMessage.parseDelimitedFrom(in);
             if (statusMsg.getType().equals(IronEyeProtos.IronMessage.MessageType.WORKOUT_INFO)) {
-                IronEyeProtos.IronMessage.WorkoutInfo workoutInfo = statusMsg.getWorkoutInfo();
-                StringBuilder toastMessage = new StringBuilder();
-
-                for (IronEyeProtos.IronMessage.Set set : workoutInfo.getSetList()) {
-                    int reps = set.getReps();
-                    int weight = set.getWeight();
-                    Log.d(TAG, "reps = " + reps);
-                    Log.d(TAG, "weight = " + weight);
-
-                    toastMessage
-                            .append("Reps: ").append(reps).append(", ")
-                            .append("Weight: ").append(weight).append("\n");
-                }
-
-                mAct.showToast(toastMessage);
-
-                FileOutputStream fos = new FileOutputStream(FileUtils.getDayFile(mAct, uid, AppConsts.WORKOUT_INFO_FILENAME));
-                workoutInfo.writeTo(fos);
-                fos.close();
+                workoutInfo = statusMsg.getWorkoutInfo();
                 break;
             }
 
@@ -125,10 +108,31 @@ public class ServerCommThread extends Thread {
 
             mAct.refreshTrackingList(jointListData);
         }
+
+        final StringBuilder toastMessage = new StringBuilder();
+
+        for (IronEyeProtos.IronMessage.Set set : workoutInfo.getSetList()) {
+            final int reps = set.getReps();
+            final int weight = set.getWeight();
+            Log.d(TAG, "reps = " + reps);
+            Log.d(TAG, "weight = " + weight);
+
+            toastMessage
+                    .append("Reps: ").append(reps).append(", ")
+                    .append("Weight: ").append(weight).append("\n");
+        }
+
+        mAct.showToast(toastMessage);
+
+        final FileOutputStream fos = new FileOutputStream(FileUtils.getDayFile(mAct, uid, AppConsts.WORKOUT_INFO_FILENAME));
+        workoutInfo.writeTo(fos);
+        fos.close();
+
         mAct.refreshTrackingList(new ArrayList<Map<String, String>>());
+        mAct.addWorkoutInfoToTrackingFrag(workoutInfo);
         mAct.refreshLogGraph();
 
-        File vidFile = FileUtils.getDayFile(mAct, uid, AppConsts.VIDEO_FILENAME);
+        final File vidFile = FileUtils.getDayFile(mAct, uid, AppConsts.VIDEO_FILENAME);
         FileUtils.inputStreamToFile(in, vidFile);
 
         mSocket.close();

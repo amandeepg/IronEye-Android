@@ -17,5 +17,7 @@
     <string name="start_set">Start Set</string>
     <string name="end_set">End Set</string>
     <string name="max_weight_per_exercise">Max Weight per Exercise</string>
+    <string name="reps">Reps</string>
+    <string name="weight">Weight</string>
 
 </resources>
