@@ -4,7 +4,10 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -12,12 +15,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.ironeye.IronEyeProtos;
 import com.nhaarman.listviewanimations.swinginadapters.AnimationAdapter;
 import com.nhaarman.listviewanimations.swinginadapters.prepared.SwingRightInAnimationAdapter;
+import com.viewpagerindicator.CirclePageIndicator;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -51,12 +56,20 @@ public class TrackFragment extends Fragment {
     Button playVideoBut;
 
     @InjectView(R.id.controls)
-    LinearLayout controlsLay;
+    RelativeLayout controlsLay;
+
+    @InjectView(R.id.pager)
+    StoppableViewPager mPager;
+
+    @InjectView(R.id.indicator)
+    CirclePageIndicator mIndicator;
 
     private ArrayList<Map<String, String>> mLst;
-    private SimpleAdapter mAdapter;
+    private SimpleAdapter mListAdapter;
     private AnimationAdapter mAnimationAdapter;
     private String uid;
+    private ControlsFragmentAdapter mViewPagerAdapter;
+    private boolean exerciseAlreadyStarted;
 
     public TrackFragment(int type) {
         this.type = type;
@@ -69,11 +82,6 @@ public class TrackFragment extends Fragment {
         final View view = inflater.inflate(R.layout.real_time_fragment, container, false);
         ButterKnife.inject(this, view);
 
-        workoutInfoView.setVisibility(type == REAL_TIME_TYPE ? View.GONE : View.VISIBLE);
-
-        controlsLay.setVisibility(type == HISTORICAL_TYPE ? View.GONE : View.VISIBLE);
-        lv.setVisibility(type == HISTORICAL_TYPE ? View.GONE : View.VISIBLE);
-
         if (type == REAL_TIME_TYPE) {
             workoutInfoView.setVisibility(View.GONE);
             controlsLay.setVisibility(View.VISIBLE);
@@ -81,11 +89,29 @@ public class TrackFragment extends Fragment {
             playVideoBut.setEnabled(false);
 
             mLst = new ArrayList<Map<String, String>>();
-            mAdapter = new SimpleAdapter(getActivity(), mLst, R.layout.card_two_item, FROM, TO);
+            mListAdapter = new SimpleAdapter(getActivity(), mLst, R.layout.card_two_item, FROM, TO);
 
-            mAnimationAdapter = new SwingRightInAnimationAdapter(mAdapter);
+            mAnimationAdapter = new SwingRightInAnimationAdapter(mListAdapter);
             mAnimationAdapter.setAbsListView(lv);
             lv.setAdapter(mAnimationAdapter);
+
+            mViewPagerAdapter = new ControlsFragmentAdapter(getActivity().getFragmentManager());
+            mPager.setAdapter(mViewPagerAdapter);
+            setUpPagerTouchListener();
+
+            mIndicator.setViewPager(mPager);
+            mIndicator.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                @Override
+                public void onPageSelected(int position) {
+                    TrackFragment.this.onPageSelected(position);
+                }
+            });
+
+            if (exerciseAlreadyStarted) {
+                onExerciseStarted();
+            } else {
+                onExerciseOver();
+            }
         } else if (type == HISTORICAL_TYPE) {
             workoutInfoView.setVisibility(View.VISIBLE);
             controlsLay.setVisibility(View.GONE);
@@ -96,6 +122,21 @@ public class TrackFragment extends Fragment {
         }
 
         return view;
+    }
+
+    private void setUpPagerTouchListener() {
+        final GestureDetector gd = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return onTapViewPager(e);
+            }
+        });
+        mPager.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gd.onTouchEvent(event);
+            }
+        });
     }
 
     public void refreshListAsync(final ArrayList<Map<String, String>> lst) {
@@ -112,7 +153,8 @@ public class TrackFragment extends Fragment {
     public void refreshList(ArrayList<Map<String, String>> lst) {
         mLst.clear();
         mLst.addAll(lst);
-        mAdapter.notifyDataSetChanged();
+        lv.requestFocus();
+        mListAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -171,5 +213,43 @@ public class TrackFragment extends Fragment {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.fromFile(FileUtils.getDayFile(getActivity(), uid, AppConsts.VIDEO_FILENAME)), "video/*");
         startActivity(intent);
+    }
+
+    public void onExerciseOver() {
+        mPager.setEnabled(false);
+        mPager.setCurrentItem(2);
+        mIndicator.setVisibility(View.INVISIBLE);
+    }
+
+    public void onExerciseStarted() {
+        // if fragment not yet created, delay to when created
+        if (mPager == null) {
+            exerciseAlreadyStarted = true;
+            return;
+        }
+
+        mPager.setEnabled(true);
+        mPager.setCurrentItem(1);
+        mIndicator.setVisibility(View.VISIBLE);
+        mViewPagerAdapter.resetSetCount();
+    }
+
+    public boolean onTapViewPager(MotionEvent e) {
+        int changePos = (e.getX() < mPager.getWidth() / 2) ? -1 : 1;
+        mPager.setCurrentItem(mPager.getCurrentItem() + changePos, true);
+        return true;
+    }
+
+    private void onPageSelected(int position) {
+        switch (position) {
+            case 0:
+                mViewPagerAdapter.incrementSetCount();
+                break;
+            case 1:
+                break;
+            case 2:
+                onExerciseOver();
+                break;
+        }
     }
 }

@@ -28,8 +28,8 @@ import static com.ironeye.IronEyeProtos.IronMessage;
 
 public class LogFragment extends Fragment {
 
-    public static final float BAR_PADDING = 1.5f;
-    public static final int BAR_SIZE = 150;
+    private static final float BAR_PADDING = 1.5f;
+    private static final int BAR_SIZE = 150;
 
     private SparseArray<String> workoutUids;
     private final Runnable refreshGraphTask = new Runnable() {

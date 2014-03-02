@@ -75,15 +75,6 @@ public class MainActivity extends Activity
         mServerCommThread.start();
     }
 
-    public void selectItemAsync(final int i) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mNavigationDrawerFragment.selectItem(i);
-            }
-        });
-    }
-
     @Override
     public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {
@@ -136,6 +127,20 @@ public class MainActivity extends Activity
             trackFrag.setUid(uid);
             trackFrag.setVideoReady(true);
         }
+    }
+
+    public void onExerciseStarted() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mNavigationDrawerFragment.selectItem(1);
+
+                final TrackFragment trackFrag = getTrackFragment();
+                if (trackFrag != null) {
+                    trackFrag.onExerciseStarted();
+                }
+            }
+        });
     }
 
     private TrackFragment getTrackFragment() {

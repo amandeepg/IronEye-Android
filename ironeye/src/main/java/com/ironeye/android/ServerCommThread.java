@@ -44,7 +44,7 @@ public class ServerCommThread extends Thread {
         ServerSocket mServerSocket = new ServerSocket(SERVER_PORT);
         mSocket = mServerSocket.accept();
 
-        mAct.selectItemAsync(1);
+        mAct.onExerciseStarted();
 
         IronEyeProtos.IronMessage.UserInfo.Builder userInfo = IronEyeProtos.IronMessage.UserInfo.newBuilder()
                 .setId(AppController.getInstance().currentPerson.getId());
