@@ -24,9 +24,11 @@ public class MyServer {
     private static Socket socketToPhone, socketToServer;
 
     public static void main(String[] args) throws IOException {
+        ArrayList<Thread> threads = new ArrayList<Thread>();
+
         execAdb();
         if (MiddleServerProperties.getBoolean("use_mock")) {
-            runMockServerAsync();
+            threads.add(runMockServerAsync());
         }
         String id = scanQr();
 
@@ -50,12 +52,23 @@ public class MyServer {
         outToServer.flush();
 
         // Set up forwarding between phone and server
-        outStreamToInStreamAsync(inFromPhone, outToServer);
-        outStreamToInStreamAsync(inFromServer, outToPhone);
+        threads.add(outStreamToInStreamAsync(inFromPhone, outToServer));
+        threads.add(outStreamToInStreamAsync(inFromServer, outToPhone));
+
+        for (Thread thread: threads){
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("DONE");
+        System.out.println();
     }
 
-    private static void runMockServerAsync() {
-        new Thread(new Runnable() {
+    private static Thread runMockServerAsync() {
+        Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -66,7 +79,9 @@ public class MyServer {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
+        t.start();
+        return t;
     }
 
     private static void runMockServer() throws IOException, InterruptedException {
@@ -171,8 +186,8 @@ public class MyServer {
         fis.close();
     }
 
-    private static void outStreamToInStreamAsync(final InputStream in, final OutputStream out) {
-        new Thread(new Runnable() {
+    private static Thread outStreamToInStreamAsync(final InputStream in, final OutputStream out) {
+        Thread t=new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -187,7 +202,9 @@ public class MyServer {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
+        t.start();
+        return t;
     }
 
     private static void outStreamToInStream(InputStream in, OutputStream out) throws IOException {
