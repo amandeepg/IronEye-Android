@@ -9,11 +9,12 @@
     android:background="#E5E5E5">
 
     <RelativeLayout
+        android:id="@+id/weight_entry_holder"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content">
 
         <com.devspark.robototextview.widget.RobotoEditText
-            android:id="@+id/weightEdit"
+            android:id="@+id/weight_edit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
@@ -29,7 +30,7 @@
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
             android:text="@string/weight"
-            android:labelFor="@id/weightEdit"
+            android:labelFor="@id/weight_edit"
             android:textColor="@android:color/darker_gray"
             app:typeface="roboto_condensed_bold"
             android:textSize="25sp"
@@ -80,14 +81,14 @@
         tools:listitem="@layout/card_two_item" />
 
     <LinearLayout
-        android:id="@+id/workout_info"
+        android:id="@+id/workout_info_holder"
         android:orientation="vertical"
         android:padding="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <LinearLayout
-            android:id="@+id/sets_info"
+            android:id="@+id/sets_info_holder"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">

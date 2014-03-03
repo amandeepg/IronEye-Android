@@ -50,11 +50,14 @@ public class TrackFragment extends Fragment {
     @InjectView(R.id.listView)
     ListView lv;
 
-    @InjectView(R.id.sets_info)
-    ViewGroup setInfoView;
+    @InjectView(R.id.sets_info_holder)
+    ViewGroup setsInfoHolder;
 
-    @InjectView(R.id.workout_info)
-    ViewGroup workoutInfoView;
+    @InjectView(R.id.weight_entry_holder)
+    ViewGroup weightEntryHolder;
+
+    @InjectView(R.id.workout_info_holder)
+    ViewGroup workoutInfoHolder;
 
     @InjectView(R.id.play_video_button)
     Button playVideoBut;
@@ -68,7 +71,7 @@ public class TrackFragment extends Fragment {
     @InjectView(R.id.indicator)
     CirclePageIndicator mIndicator;
 
-    @InjectView(R.id.weightEdit)
+    @InjectView(R.id.weight_edit)
     EditText weightEditText;
 
     private ArrayList<Map<String, String>> mLst;
@@ -91,8 +94,9 @@ public class TrackFragment extends Fragment {
         ButterKnife.inject(this, view);
 
         if (type == REAL_TIME_TYPE) {
-            workoutInfoView.setVisibility(View.GONE);
+            workoutInfoHolder.setVisibility(View.GONE);
             controlsLay.setVisibility(View.VISIBLE);
+            weightEntryHolder.setVisibility(View.VISIBLE);
             lv.setVisibility(View.VISIBLE);
             playVideoBut.setEnabled(false);
 
@@ -105,8 +109,9 @@ public class TrackFragment extends Fragment {
                 onExerciseOver();
             }
         } else if (type == HISTORICAL_TYPE) {
-            workoutInfoView.setVisibility(View.VISIBLE);
+            workoutInfoHolder.setVisibility(View.VISIBLE);
             controlsLay.setVisibility(View.GONE);
+            weightEntryHolder.setVisibility(View.GONE);
             lv.setVisibility(View.GONE);
             playVideoBut.setEnabled(true);
 
@@ -182,7 +187,7 @@ public class TrackFragment extends Fragment {
     public void displayWorkoutInfo(final WorkoutInfo workoutInfo) {
         int i = 1;
         for (IronMessage.Set set : workoutInfo.getSetList()) {
-            final View view = getActivity().getLayoutInflater().inflate(R.layout.rep_weight_card, setInfoView, false);
+            final View view = getActivity().getLayoutInflater().inflate(R.layout.rep_weight_card, setsInfoHolder, false);
 
             TextView repView = ButterKnife.findById(view, R.id.rep_count);
             TextView weightView = ButterKnife.findById(view, R.id.weight_for_set);
@@ -192,13 +197,13 @@ public class TrackFragment extends Fragment {
             weightView.setText(String.valueOf(set.getWeight()));
             setNumView.setText("Set " + i++);
 
-            setInfoView.addView(view);
+            setsInfoHolder.addView(view);
         }
 
         if (type == REAL_TIME_TYPE) {
-            workoutInfoView.setVisibility(View.VISIBLE);
+            workoutInfoHolder.setVisibility(View.VISIBLE);
             Animation slide = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.slide_up);
-            workoutInfoView.startAnimation(slide);
+            workoutInfoHolder.startAnimation(slide);
         }
     }
 
@@ -240,8 +245,8 @@ public class TrackFragment extends Fragment {
         mIndicator.setVisibility(View.VISIBLE);
         mViewPagerAdapter.resetSetCount();
 
-        workoutInfoView.setVisibility(View.GONE);
-        setInfoView.removeAllViews();
+        workoutInfoHolder.setVisibility(View.GONE);
+        setsInfoHolder.removeAllViews();
     }
 
     public boolean onTapViewPager(MotionEvent ev) {
@@ -311,7 +316,7 @@ public class TrackFragment extends Fragment {
     private void promptWeightToast() {
         final Activity activity = getActivity();
         final Vibrator vib = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
-        
+
         Toast.makeText(activity, activity.getString(R.string.please_enter_weight), Toast.LENGTH_SHORT).show();
         vib.vibrate(200);
     }
