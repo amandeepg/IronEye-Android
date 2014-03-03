@@ -270,10 +270,10 @@ public class MainActivity extends Activity
                 }
                 break;
             case R.id.start_set_action:
-                serverComms.sendControlMsg(IronMessage.MessageType.SET_START);
+                serverComms.sendControlMsgAsync(IronMessage.MessageType.SET_START);
                 break;
             case R.id.end_set_action:
-                serverComms.sendControlMsg(IronMessage.MessageType.SET_END);
+                serverComms.sendControlMsgAsync(IronMessage.MessageType.SET_END);
                 break;
         }
 

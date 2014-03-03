@@ -13,9 +13,8 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
@@ -48,16 +47,16 @@ public class TrackFragment extends Fragment {
     ListView lv;
 
     @InjectView(R.id.sets_info)
-    LinearLayout setInfoView;
+    ViewGroup setInfoView;
 
     @InjectView(R.id.workout_info)
-    LinearLayout workoutInfoView;
+    ViewGroup workoutInfoView;
 
     @InjectView(R.id.play_video_button)
     Button playVideoBut;
 
     @InjectView(R.id.controls)
-    RelativeLayout controlsLay;
+    ViewGroup controlsLay;
 
     @InjectView(R.id.pager)
     StoppableViewPager mPager;
@@ -65,13 +64,16 @@ public class TrackFragment extends Fragment {
     @InjectView(R.id.indicator)
     CirclePageIndicator mIndicator;
 
+    @InjectView(R.id.weightEdit)
+    EditText weightEditText;
+
     private ArrayList<Map<String, String>> mLst;
     private SimpleAdapter mListAdapter;
     private AnimationAdapter mAnimationAdapter;
     private String uid;
     private ControlsFragmentAdapter mViewPagerAdapter;
     private boolean exerciseAlreadyStarted;
-    private boolean setControlFromServer;
+    private boolean setControlFromServer = true;
 
     public TrackFragment(int type) {
         this.type = type;
@@ -264,7 +266,9 @@ public class TrackFragment extends Fragment {
             IronMessage.MessageType msgType = null;
             switch (position) {
                 case 0:
-                    msgType = IronMessage.MessageType.SET_START;
+                    act.serverComms.sendMsgAsync(IronMessage.newBuilder()
+                            .setType(IronMessage.MessageType.SET_START)
+                            .setWeight(Integer.parseInt(weightEditText.getText().toString())));
                     break;
                 case 1:
                     msgType = IronMessage.MessageType.SET_END;
@@ -273,7 +277,7 @@ public class TrackFragment extends Fragment {
                     msgType = IronMessage.MessageType.EXERCISE_END;
                     break;
             }
-            act.serverComms.sendControlMsg(msgType);
+            act.serverComms.sendControlMsgAsync(msgType);
         }
         setControlFromServer = false;
     }

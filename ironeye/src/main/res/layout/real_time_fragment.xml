@@ -9,6 +9,46 @@
     android:background="#E5E5E5">
 
     <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <com.devspark.robototextview.widget.RobotoEditText
+            android:id="@+id/weightEdit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            app:typeface="roboto_bold"
+            android:textSize="25sp"
+            android:gravity="right"
+            android:paddingRight="60dp"
+            android:paddingLeft="100dp"
+            tools:text="255"/>
+
+        <com.devspark.robototextview.widget.RobotoTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:text="@string/weight"
+            android:labelFor="@id/weightEdit"
+            android:textColor="@android:color/darker_gray"
+            app:typeface="roboto_condensed_bold"
+            android:textSize="25sp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true" />
+
+        <com.devspark.robototextview.widget.RobotoTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingRight="10dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:text="@string/lbs"
+            app:typeface="roboto_condensed_light"
+            android:textSize="25sp"/>
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/controls"
         android:layout_width="match_parent"
         android:layout_height="120dp">

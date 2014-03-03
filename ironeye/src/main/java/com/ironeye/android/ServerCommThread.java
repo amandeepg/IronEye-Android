@@ -51,24 +51,24 @@ public class ServerCommThread extends Thread {
 
         getAct().onExerciseStarted();
 
-        sendUserMessage();
+        sendUserMsg();
 
         final boolean mkdirs = FileUtils.getDayFile(getAct(), getUid()).mkdirs();
         if (!mkdirs) {
             Log.d(TAG, "Directory not made.");
         }
 
-        boolean isWorkoutMessage = false;
-        while (!isWorkoutMessage) {
+        boolean isWorkoutMsg = false;
+        while (!isWorkoutMsg) {
             IronMessage statusMsg = IronMessage.parseDelimitedFrom(in);
             IronMessage.MessageType type = statusMsg.getType();
             switch (type) {
                 case WORKOUT_INFO:
-                    handleWorkoutInfoMessage(statusMsg);
-                    isWorkoutMessage = true;
+                    handleWorkoutInfoMsg(statusMsg);
+                    isWorkoutMsg = true;
                     break;
                 case FORM_ERROR:
-                    handleJointErrorMessage(statusMsg);
+                    handleJointErrorMsg(statusMsg);
                     break;
                 case SET_START:
                 case SET_END:
@@ -102,7 +102,7 @@ public class ServerCommThread extends Thread {
     }
 
     @DebugLog
-    private void handleWorkoutInfoMessage(IronMessage statusMsg) throws IOException {
+    private void handleWorkoutInfoMsg(IronMessage statusMsg) throws IOException {
         final IronMessage.WorkoutInfo workoutInfo = statusMsg.getWorkoutInfo();
 
         final FileOutputStream fos = new FileOutputStream(FileUtils.getDayFile(getAct(), getUid(), AppConsts.WORKOUT_INFO_FILENAME));
@@ -115,7 +115,7 @@ public class ServerCommThread extends Thread {
     }
 
     @DebugLog
-    private void handleJointErrorMessage(IronMessage statusMsg) {
+    private void handleJointErrorMsg(IronMessage statusMsg) {
         final ArrayList<Map<String, String>> jointListData = new ArrayList<Map<String, String>>();
 
         final IronMessage.FormErrorData formError = statusMsg.getErrorData();
@@ -142,7 +142,7 @@ public class ServerCommThread extends Thread {
         getAct().refreshTrackingList(jointListData);
     }
 
-    private void sendUserMessage() throws IOException {
+    private void sendUserMsg() throws IOException {
         final IronMessage.UserInfo.Builder userInfo = IronMessage.UserInfo.newBuilder()
                 .setId(AppController.getInstance().currentPerson.getId());
 
@@ -150,19 +150,35 @@ public class ServerCommThread extends Thread {
                 .setUserInfo(userInfo)
                 .setType(IronMessage.MessageType.USER_INFO);
 
-        sendMessage(userMsg);
+        sendMsg(userMsg);
     }
 
     @DebugLog
-    private synchronized void sendMessage(IronMessage msg) throws IOException {
+    private synchronized void sendMsg(IronMessage msg) throws IOException {
         msg.writeDelimitedTo(mSocket.getOutputStream());
     }
 
-    private void sendMessage(IronMessage.Builder msg) throws IOException {
-        sendMessage(msg.build());
+    private void sendMsg(IronMessage.Builder msg) throws IOException {
+        sendMsg(msg.build());
     }
 
-    public void sendControlMsg(final IronMessage.MessageType type) {
+    public void sendMsgAsync(final IronMessage.Builder msg) {
+        if (msg == null) {
+            return;
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    sendMsg(msg);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    public void sendControlMsgAsync(final IronMessage.MessageType type) {
         if (type == null) {
             return;
         }
@@ -172,7 +188,7 @@ public class ServerCommThread extends Thread {
                 final IronMessage.Builder msg = IronMessage.newBuilder()
                         .setType(type);
                 try {
-                    sendMessage(msg);
+                    sendMsg(msg);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
