@@ -26,7 +26,7 @@ class ControlsFragmentAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         ControlPage[] controlPages = new ControlPage[]{
                 new ControlPage(Colour.successColor(), "On Set " + set_num, "Start Set"),
-                new ControlPage(Colour.bananaColor(), "Paused", "Pause"),
+                new ControlPage(Colour.bananaColor(), "Paused", "End Set"),
                 new ControlPage(Colour.watermelonColor(), "Exercise Ended", "End Exercise"),
         };
 
