@@ -171,15 +171,6 @@ public class TrackFragment extends Fragment {
         ButterKnife.reset(this);
     }
 
-    public void displayWorkoutInfoAsync(final WorkoutInfo workoutInfo) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                displayWorkoutInfo(workoutInfo);
-            }
-        });
-    }
-
     public void displayWorkoutInfo(final WorkoutInfo workoutInfo) {
         int i = 1;
         for (IronEyeProtos.IronMessage.Set set : workoutInfo.getSetList()) {
@@ -240,6 +231,9 @@ public class TrackFragment extends Fragment {
         mPager.setCurrentItem(1);
         mIndicator.setVisibility(View.VISIBLE);
         mViewPagerAdapter.resetSetCount();
+
+        workoutInfoView.setVisibility(View.GONE);
+        setInfoView.removeAllViews();
     }
 
     public boolean onTapViewPager(MotionEvent e) {

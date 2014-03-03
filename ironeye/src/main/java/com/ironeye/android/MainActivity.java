@@ -117,7 +117,13 @@ public class MainActivity extends Activity
     public void addWorkoutInfoToTrackingFrag(final IronMessage.WorkoutInfo workoutInfo) {
         final TrackFragment trackFrag = getTrackFragment();
         if (trackFrag != null) {
-            trackFrag.displayWorkoutInfoAsync(workoutInfo);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    trackFrag.displayWorkoutInfo(workoutInfo);
+                    trackFrag.onExerciseOver();
+                }
+            });
         }
     }
 
