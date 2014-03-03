@@ -58,19 +58,26 @@ public class ServerCommThread extends Thread {
             Log.d(TAG, "Directory not made.");
         }
 
-        final IronMessage.WorkoutInfo workoutInfo;
-
-        while (true) {
+        boolean isWorkoutMessage = false;
+        while (!isWorkoutMessage) {
             IronMessage statusMsg = IronMessage.parseDelimitedFrom(in);
-            if (statusMsg.getType().equals(IronMessage.MessageType.WORKOUT_INFO)) {
-                workoutInfo = statusMsg.getWorkoutInfo();
-                break;
+            IronMessage.MessageType type = statusMsg.getType();
+            switch (type) {
+                case WORKOUT_INFO:
+                    handleWorkoutInfoMessage(statusMsg);
+                    isWorkoutMessage = true;
+                    break;
+                case FORM_ERROR:
+                    handleJointErrorMessage(statusMsg);
+                    break;
+                case SET_START:
+                case SET_END:
+                case EXERCISE_END:
+                    getAct().moveControls(type);
+                    break;
             }
-
-            handleJointErrorMessage(statusMsg);
         }
 
-        handleWorkoutInfoMessage(workoutInfo);
         handleVideoStream();
 
         mSocket.close();
@@ -94,7 +101,9 @@ public class ServerCommThread extends Thread {
     }
 
     @DebugLog
-    private void handleWorkoutInfoMessage(IronMessage.WorkoutInfo workoutInfo) throws IOException {
+    private void handleWorkoutInfoMessage(IronMessage statusMsg) throws IOException {
+        final IronMessage.WorkoutInfo workoutInfo = statusMsg.getWorkoutInfo();
+
         final FileOutputStream fos = new FileOutputStream(FileUtils.getDayFile(getAct(), getUid(), AppConsts.WORKOUT_INFO_FILENAME));
         workoutInfo.writeTo(fos);
         fos.close();
@@ -136,10 +145,9 @@ public class ServerCommThread extends Thread {
         final IronMessage.UserInfo.Builder userInfo = IronMessage.UserInfo.newBuilder()
                 .setId(AppController.getInstance().currentPerson.getId());
 
-        final IronMessage userMsg = IronMessage.newBuilder()
+        final IronMessage.Builder userMsg = IronMessage.newBuilder()
                 .setUserInfo(userInfo)
-                .setType(IronMessage.MessageType.USER_INFO)
-                .build();
+                .setType(IronMessage.MessageType.USER_INFO);
 
         sendMessage(userMsg);
     }
@@ -148,14 +156,19 @@ public class ServerCommThread extends Thread {
         msg.writeDelimitedTo(mSocket.getOutputStream());
     }
 
+    private void sendMessage(IronMessage.Builder msg) throws IOException {
+        sendMessage(msg.build());
+    }
+
     public void sendControlMsg(final IronMessage.MessageType type) {
+        if (type == null) {
+            return;
+        }
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final IronMessage msg = IronMessage.newBuilder()
-                        .setType(type)
-                        .build();
-
+                final IronMessage.Builder msg = IronMessage.newBuilder()
+                        .setType(type);
                 try {
                     sendMessage(msg);
                 } catch (IOException e) {

@@ -19,7 +19,6 @@ import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
-import com.ironeye.IronEyeProtos;
 import com.ironeye.android.utils.FileUtils;
 import com.nhaarman.listviewanimations.swinginadapters.AnimationAdapter;
 import com.nhaarman.listviewanimations.swinginadapters.prepared.SwingRightInAnimationAdapter;
@@ -33,6 +32,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 
+import static com.ironeye.IronEyeProtos.IronMessage;
 import static com.ironeye.IronEyeProtos.IronMessage.WorkoutInfo;
 
 public class TrackFragment extends Fragment {
@@ -71,6 +71,7 @@ public class TrackFragment extends Fragment {
     private String uid;
     private ControlsFragmentAdapter mViewPagerAdapter;
     private boolean exerciseAlreadyStarted;
+    private boolean setControlFromServer;
 
     public TrackFragment(int type) {
         this.type = type;
@@ -173,7 +174,7 @@ public class TrackFragment extends Fragment {
 
     public void displayWorkoutInfo(final WorkoutInfo workoutInfo) {
         int i = 1;
-        for (IronEyeProtos.IronMessage.Set set : workoutInfo.getSetList()) {
+        for (IronMessage.Set set : workoutInfo.getSetList()) {
             final View view = getActivity().getLayoutInflater().inflate(R.layout.rep_weight_card, setInfoView, false);
 
             TextView repView = ButterKnife.findById(view, R.id.rep_count);
@@ -242,16 +243,40 @@ public class TrackFragment extends Fragment {
         return true;
     }
 
+    public void setCurrentControlItem(int i) {
+        mPager.setCurrentItem(i, true);
+    }
+
     private void onPageSelected(int position) {
+        MainActivity act = (MainActivity) getActivity();
         switch (position) {
             case 0:
                 mViewPagerAdapter.incrementSetCount();
-                break;
-            case 1:
                 break;
             case 2:
                 onExerciseOver();
                 break;
         }
+
+        if (!setControlFromServer) {
+            IronMessage.MessageType msgType = null;
+            switch (position) {
+                case 0:
+                    msgType = IronMessage.MessageType.SET_START;
+                    break;
+                case 1:
+                    msgType = IronMessage.MessageType.SET_END;
+                    break;
+                case 2:
+                    msgType = IronMessage.MessageType.EXERCISE_END;
+                    break;
+            }
+            act.serverComms.sendControlMsg(msgType);
+        }
+        setControlFromServer = false;
+    }
+
+    public void setSetControlFromServer(boolean setControlFromServer) {
+        this.setControlFromServer = setControlFromServer;
     }
 }

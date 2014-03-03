@@ -35,13 +35,11 @@ public class MainActivity extends Activity
         GooglePlayServicesClient.OnConnectionFailedListener, TextToSpeech.OnInitListener {
 
     public TextToSpeech tts;
-
+    public ServerCommThread serverComms;
     @InjectView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
-
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private PlusClient mPlusClient;
-    private ServerCommThread mServerCommThread;
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
@@ -71,8 +69,8 @@ public class MainActivity extends Activity
     }
 
     public void startServerSocket() {
-        mServerCommThread = new ServerCommThread(this);
-        mServerCommThread.start();
+        serverComms = new ServerCommThread(this);
+        serverComms.start();
     }
 
     @Override
@@ -147,6 +145,34 @@ public class MainActivity extends Activity
                 }
             }
         });
+    }
+
+
+    public void moveControls(final IronMessage.MessageType type) {
+        final TrackFragment trackFrag = getTrackFragment();
+        if (trackFrag != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    switch (type) {
+                        case SET_START:
+                            trackFrag.setSetControlFromServer(true);
+                            trackFrag.setCurrentControlItem(0);
+                            break;
+                        case SET_END:
+                            trackFrag.setSetControlFromServer(true);
+                            trackFrag.setCurrentControlItem(1);
+                            break;
+                        case EXERCISE_END:
+                            trackFrag.setSetControlFromServer(true);
+                            trackFrag.setCurrentControlItem(1);
+                            break;
+                        default:
+                            trackFrag.setSetControlFromServer(false);
+                    }
+                }
+            });
+        }
     }
 
     private TrackFragment getTrackFragment() {
@@ -244,10 +270,10 @@ public class MainActivity extends Activity
                 }
                 break;
             case R.id.start_set_action:
-                mServerCommThread.sendControlMsg(IronMessage.MessageType.SET_START);
+                serverComms.sendControlMsg(IronMessage.MessageType.SET_START);
                 break;
             case R.id.end_set_action:
-                mServerCommThread.sendControlMsg(IronMessage.MessageType.SET_END);
+                serverComms.sendControlMsg(IronMessage.MessageType.SET_END);
                 break;
         }
 

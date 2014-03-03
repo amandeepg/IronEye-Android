@@ -94,6 +94,18 @@ public class MyServer {
         for (int i = 0; i < 3; i++) {
             Thread.sleep(3000 - i * 300);
 
+            if (i == 0) {
+                IronMessage.newBuilder()
+                        .setType(IronMessage.MessageType.SET_START)
+                        .build()
+                        .writeDelimitedTo(outToPhone);
+            } else if (i == 1) {
+                IronMessage.newBuilder()
+                        .setType(IronMessage.MessageType.SET_END)
+                        .build()
+                        .writeDelimitedTo(outToPhone);
+            }
+
             IronMessage.JointError je1 = IronMessage.JointError.newBuilder()
                     .setJointType(Math.random() > 0.5 ? IronMessage.JointType.LEFT_HIP : IronMessage.JointType.RIGHT_HAND)
                     .setErrorMessage(Math.random() > 0.5 ? "Wrong" : "Bad")
