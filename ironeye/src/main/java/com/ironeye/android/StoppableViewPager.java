@@ -14,7 +14,6 @@ public class StoppableViewPager extends ViewPager {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return isEnabled() && super.onTouchEvent(event);
-
     }
 
     @Override

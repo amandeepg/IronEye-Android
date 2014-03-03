@@ -189,9 +189,9 @@ public class TrackFragment extends Fragment {
         for (IronMessage.Set set : workoutInfo.getSetList()) {
             final View view = getActivity().getLayoutInflater().inflate(R.layout.rep_weight_card, setsInfoHolder, false);
 
-            TextView repView = ButterKnife.findById(view, R.id.rep_count);
-            TextView weightView = ButterKnife.findById(view, R.id.weight_for_set);
-            TextView setNumView = ButterKnife.findById(view, R.id.set_num);
+            final TextView repView = ButterKnife.findById(view, R.id.rep_count);
+            final TextView weightView = ButterKnife.findById(view, R.id.weight_for_set);
+            final TextView setNumView = ButterKnife.findById(view, R.id.set_num);
 
             repView.setText(String.valueOf(set.getReps()));
             weightView.setText(String.valueOf(set.getWeight()));
@@ -202,7 +202,7 @@ public class TrackFragment extends Fragment {
 
         if (type == REAL_TIME_TYPE) {
             workoutInfoHolder.setVisibility(View.VISIBLE);
-            Animation slide = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.slide_up);
+            final Animation slide = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.slide_up);
             workoutInfoHolder.startAnimation(slide);
         }
     }
@@ -222,7 +222,7 @@ public class TrackFragment extends Fragment {
 
     @OnClick(R.id.play_video_button)
     public void clickPlayVideo() {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
+        final Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.fromFile(FileUtils.getDayFile(getActivity(), uid, AppConsts.VIDEO_FILENAME)), "video/*");
         startActivity(intent);
     }
@@ -277,7 +277,7 @@ public class TrackFragment extends Fragment {
 
     @DebugLog
     private void onPageSelected(int position) {
-        MainActivity act = (MainActivity) getActivity();
+        final MainActivity act = (MainActivity) getActivity();
         switch (position) {
             case 0:
                 mViewPagerAdapter.incrementSetCount();

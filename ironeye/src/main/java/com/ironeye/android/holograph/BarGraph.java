@@ -105,13 +105,13 @@ public class BarGraph extends View {
         canvas.drawColor(Color.TRANSPARENT);
         mPaint.setAntiAlias(true);
 
-        float density = mContext.getResources().getDisplayMetrics().density;
-        float scaledDensity = mContext.getResources().getDisplayMetrics().scaledDensity;
-        float padding = mPadding * density;
-        float bottomPadding = 30 * density;
-        float strokeWidth = padding + 0;
-        float roundRadius = padding * 5f;
-        float usableHeight = getHeight() - bottomPadding - 5;
+        final float density = mContext.getResources().getDisplayMetrics().density;
+        final float scaledDensity = mContext.getResources().getDisplayMetrics().scaledDensity;
+        final float padding = mPadding * density;
+        final float bottomPadding = 30 * density;
+        final float strokeWidth = padding + 0;
+        final float roundRadius = padding * 5f;
+        final float usableHeight = getHeight() - bottomPadding - 5;
 
         // Draw x-axis line
         if (mShowAxis) {
@@ -120,15 +120,15 @@ public class BarGraph extends View {
             mPaint.setAlpha(50);
             canvas.drawLine(0, getHeight() - bottomPadding + 10 * density, getWidth(), getHeight() - bottomPadding + 10 * density, mPaint);
         }
-        float barWidth = (getWidth() - (padding * 2) * mBars.size()) / mBars.size();
+        final float barWidth = (getWidth() - (padding * 2) * mBars.size()) / mBars.size();
 
         int count = 0;
         for (final Bar bar : mBars) {
             // Set bar bounds
-            float left = (padding * 2f) * count + padding + barWidth * count;
-            float top = getHeight() - bottomPadding - (usableHeight * (bar.getValue() / maxValue));
-            float right = (padding * 2f) * count + padding + barWidth * (count + 1);
-            float bottom = getHeight() - bottomPadding;
+            final float left = (padding * 2f) * count + padding + barWidth * count;
+            final float top = getHeight() - bottomPadding - (usableHeight * (bar.getValue() / maxValue));
+            final float right = (padding * 2f) * count + padding + barWidth * (count + 1);
+            final float bottom = getHeight() - bottomPadding;
             mRectF.set(left, top, right, bottom);
             bar.setRect(mRectF);
 
@@ -157,8 +157,8 @@ public class BarGraph extends View {
                     mPaint.setTextSize((AXIS_LABEL_FONT_SIZE_MAX - fontModifier) * scaledDensity);
                     fontModifier += 0.5;
                 } while (mPaint.measureText(bar.getName()) > barWidth * 0.85);
-                float x = mRectF.centerX() - (mPaint.measureText(bar.getName()) / 2f);
-                float y = getHeight() - 3 * scaledDensity;
+                final float x = mRectF.centerX() - (mPaint.measureText(bar.getName()) / 2f);
+                final float y = getHeight() - 3 * scaledDensity;
                 canvas.drawText(bar.getName(), x, y, mPaint);
             }
 
@@ -186,8 +186,8 @@ public class BarGraph extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
+        final float x = event.getX();
+        final float y = event.getY();
 
         int count = 0;
         for (Bar bar : mBars) {
@@ -218,18 +218,18 @@ public class BarGraph extends View {
     }
 
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        final int widthSize = MeasureSpec.getSize(widthMeasureSpec);
 
-        int desiredWidth;
+        final int desiredWidth;
         if (mBarSize != -1) {
             desiredWidth = (int) ((mBarSize + 2f * mPadding) * mBars.size());
         } else {
             desiredWidth = widthSize;
         }
 
-        int width;
-        int height = MeasureSpec.getSize(heightMeasureSpec);
+        final int width;
+        final int height = MeasureSpec.getSize(heightMeasureSpec);
 
         if (widthMode == MeasureSpec.EXACTLY) {
             width = widthSize;

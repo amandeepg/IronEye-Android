@@ -76,7 +76,7 @@ public class MainActivity extends Activity
     @Override
     public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {
-            int result = tts.setLanguage(Locale.US);
+            final int result = tts.setLanguage(Locale.US);
 
             if (result == TextToSpeech.LANG_MISSING_DATA
                     || result == TextToSpeech.LANG_NOT_SUPPORTED) {
@@ -90,7 +90,7 @@ public class MainActivity extends Activity
 
     private Fragment getFragType(Class clss) {
         for (int k = 0; k < mFrags.size(); k++) {
-            Fragment fr = mFrags.valueAt(k);
+            final Fragment fr = mFrags.valueAt(k);
             if (fr.getClass().equals(clss)) {
                 return fr;
             }
@@ -185,9 +185,10 @@ public class MainActivity extends Activity
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-        FragmentManager fragmentManager = getFragmentManager();
+        final FragmentManager fragmentManager = getFragmentManager();
+        final FragmentTransaction ft = fragmentManager.beginTransaction();
+
         Fragment frag = mFrags.get(position);
-        FragmentTransaction ft = fragmentManager.beginTransaction();
 
         hideFrags(frag, ft);
 
@@ -215,7 +216,7 @@ public class MainActivity extends Activity
 
     private void hideFrags(Fragment exemptFrag, FragmentTransaction ft) {
         for (int i = 0; i < mFrags.size(); i++) {
-            Fragment fr = mFrags.valueAt(i);
+            final Fragment fr = mFrags.valueAt(i);
             if (fr != exemptFrag) {
                 ft.hide(fr);
             }
@@ -237,7 +238,7 @@ public class MainActivity extends Activity
     }
 
     public void restoreActionBar() {
-        ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);

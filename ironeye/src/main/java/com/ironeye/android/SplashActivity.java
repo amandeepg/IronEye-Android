@@ -35,15 +35,15 @@ public class SplashActivity extends Activity implements
     }
 
     private void finishSplash(final Class<?> cls) {
-        long timeDiff = System.currentTimeMillis() - mStartedTime;
-        long startDelay = timeDiff > SPLASH_SHOW_TIME_MILLIS ? 0 : SPLASH_SHOW_TIME_MILLIS - timeDiff;
+        final long timeDiff = System.currentTimeMillis() - mStartedTime;
+        final long startDelay = timeDiff > SPLASH_SHOW_TIME_MILLIS ? 0 : SPLASH_SHOW_TIME_MILLIS - timeDiff;
         Log.d(TAG, "Launching " + cls + " in " + startDelay + "ms. ");
 
         Runnable r = new Runnable() {
 
             @Override
             public void run() {
-                Intent intent = new Intent(SplashActivity.this, cls);
+                final Intent intent = new Intent(SplashActivity.this, cls);
                 startActivity(intent);
                 finish();
             }

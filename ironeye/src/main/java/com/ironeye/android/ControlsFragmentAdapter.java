@@ -33,12 +33,12 @@ class ControlsFragmentAdapter extends FragmentPagerAdapter {
                 new ControlPage(Colour.watermelonColor(), mContext.getString(R.string.exercise_ended), mContext.getString(R.string.end_exercise)),
         };
 
-        Adjacents adj = new Adjacents(
+        final Adjacents adj = new Adjacents(
                 position - 1 >= 0 && position - 1 < COUNT - 2 ? controlPages[position - 1] : null,
                 controlPages[position],
                 position + 1 < COUNT ? controlPages[position + 1] : null
         );
-        ControlsFragment frag = ControlsFragment.newInstance(adj);
+        final ControlsFragment frag = ControlsFragment.newInstance(adj);
         if (position == 0) {
             setProgressControlPage = frag;
         }

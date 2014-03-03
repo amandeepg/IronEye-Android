@@ -73,7 +73,7 @@ public class LogFragment extends Fragment {
     }
 
     public void refreshGraph() {
-        ArrayList<Bar> points = addPoints();
+        final ArrayList<Bar> points = addPoints();
 
         bg.setPadding(BAR_PADDING);
         bg.setBarSize(BAR_SIZE);
@@ -91,15 +91,15 @@ public class LogFragment extends Fragment {
     }
 
     private ArrayList<Bar> addPoints() {
-        ArrayList<Bar> points = new ArrayList<Bar>();
+        final ArrayList<Bar> points = new ArrayList<Bar>();
         workoutUids = new SparseArray<String>();
 
-        File mainDir = getActivity().getExternalFilesDir(null);
+        final File mainDir = getActivity().getExternalFilesDir(null);
         if (mainDir == null || !mainDir.isDirectory() || !mainDir.canRead()) {
             return points;
         }
 
-        File[] dirs = mainDir.listFiles();
+        final File[] dirs = mainDir.listFiles();
         if (dirs == null || dirs.length == 0) {
             return points;
         }
@@ -110,9 +110,9 @@ public class LogFragment extends Fragment {
                 continue;
             }
 
-            String uid = dayDir.getName();
+            final String uid = dayDir.getName();
 
-            IronMessage.WorkoutInfo workoutInfo;
+            final IronMessage.WorkoutInfo workoutInfo;
             try {
                 File f = new File(dayDir, AppConsts.WORKOUT_INFO_FILENAME);
                 workoutInfo = IronMessage.WorkoutInfo.parseFrom(new FileInputStream(f));
@@ -127,7 +127,7 @@ public class LogFragment extends Fragment {
                 maxWeight = Math.max(maxWeight, weight);
             }
 
-            Bar d = new Bar();
+            final Bar d = new Bar();
             d.setColor(Color.BLUE);
             d.setValue(maxWeight);
             d.setName(new SimpleDateFormat("MMM. d").format(new Date(Long.parseLong(uid))));
@@ -140,7 +140,7 @@ public class LogFragment extends Fragment {
     }
 
     private void onBarClick(int i) {
-        Intent intent = new Intent(getActivity(), ReviewPastActivity.class);
+        final Intent intent = new Intent(getActivity(), ReviewPastActivity.class);
         intent.putExtra(ReviewPastActivity.UID, workoutUids.get(i));
         startActivity(intent);
     }

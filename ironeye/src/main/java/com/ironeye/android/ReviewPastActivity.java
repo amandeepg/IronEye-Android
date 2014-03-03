@@ -21,16 +21,16 @@ public class ReviewPastActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_review_past);
 
-        TrackFragment trackFrag = new TrackFragment(TrackFragment.HISTORICAL_TYPE);
+        final TrackFragment trackFrag = new TrackFragment(TrackFragment.HISTORICAL_TYPE);
 
         getFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, trackFrag).commit();
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Bundle extras = getIntent().getExtras();
+        final Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            String uid = extras.getString(UID);
+            final String uid = extras.getString(UID);
             try {
                 trackFrag.workoutInfo = WorkoutInfo.parseFrom(new FileInputStream(FileUtils.getDayFile(
                         this, uid, AppConsts.WORKOUT_INFO_FILENAME)));
@@ -49,7 +49,7 @@ public class ReviewPastActivity extends FragmentActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
+        final int id = item.getItemId();
         switch (id) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:

@@ -21,8 +21,6 @@
     <string name="weight">Weight</string>
     <string name="play_video">Play Video</string>
     <string name="title_activity_review_past">Log Entry</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
     <string name="review_your_form">Review your form:</string>
     <string name="lbs">lbs.</string>
     <string name="paused">Paused</string>

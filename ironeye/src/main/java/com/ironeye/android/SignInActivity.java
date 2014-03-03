@@ -38,7 +38,7 @@ public class SignInActivity extends Activity implements
         mConnectionProgressDialog = new ProgressDialog(this);
         mConnectionProgressDialog.setMessage(getString(R.string.signing_in));
 
-        SignInButton mSignInButton = (SignInButton) findViewById(R.id.sign_in_button);
+        final SignInButton mSignInButton = (SignInButton) findViewById(R.id.sign_in_button);
         mSignInButton.setSize(SignInButton.SIZE_WIDE);
         mSignInButton.setOnClickListener(this);
 
@@ -52,7 +52,7 @@ public class SignInActivity extends Activity implements
         AppController.getInstance().currentPerson = mPlusClient.getCurrentPerson();
 
         mConnectionProgressDialog.dismiss();
-        Intent intent = new Intent(this, MainActivity.class);
+        final Intent intent = new Intent(this, MainActivity.class);
         if (noActivityAnimation) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             noActivityAnimation = false;
@@ -122,7 +122,7 @@ public class SignInActivity extends Activity implements
     protected void onResume() {
         super.onResume();
 
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
+        final int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
         if (resultCode != ConnectionResult.SUCCESS) {
             GooglePlayServicesUtil.getErrorDialog(resultCode, this, REQUEST_CODE_PLAY_SERVICES_ERR).show();
         }
