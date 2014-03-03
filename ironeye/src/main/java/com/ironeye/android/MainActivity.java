@@ -270,12 +270,6 @@ public class MainActivity extends Activity
                     throw new IllegalStateException("Not connected when trying to sign out.");
                 }
                 break;
-            case R.id.start_set_action:
-                serverComms.sendControlMsgAsync(IronMessage.MessageType.SET_START);
-                break;
-            case R.id.end_set_action:
-                serverComms.sendControlMsgAsync(IronMessage.MessageType.SET_END);
-                break;
         }
 
         return super.onOptionsItemSelected(item);

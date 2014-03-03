@@ -2,12 +2,4 @@
     <item android:id="@+id/sign_out_action"
         android:title="@string/sign_out"
         android:showAsAction="never" />
-
-    <item android:id="@+id/start_set_action"
-        android:title="@string/start_set"
-        android:showAsAction="never" />
-
-    <item android:id="@+id/end_set_action"
-        android:title="@string/end_set"
-        android:showAsAction="never" />
 </menu>
