@@ -24,6 +24,12 @@ public class MyServer {
     private static Socket socketToPhone, socketToServer;
 
     public static void main(String[] args) throws IOException {
+        while (true) {
+            handleSingleExercise();
+        }
+    }
+
+    private static void handleSingleExercise() throws IOException {
         ArrayList<Thread> threads = new ArrayList<Thread>();
 
         execAdb();
