@@ -1,4 +1,4 @@
-package com.ironeye.android;
+package com.ironeye.android.utils;
 
 import android.app.Activity;
 

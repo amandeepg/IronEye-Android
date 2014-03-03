@@ -5,6 +5,8 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.ironeye.android.utils.FileUtils;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 

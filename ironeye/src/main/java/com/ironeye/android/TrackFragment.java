@@ -20,6 +20,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.ironeye.IronEyeProtos;
+import com.ironeye.android.utils.FileUtils;
 import com.nhaarman.listviewanimations.swinginadapters.AnimationAdapter;
 import com.nhaarman.listviewanimations.swinginadapters.prepared.SwingRightInAnimationAdapter;
 import com.viewpagerindicator.CirclePageIndicator;
@@ -88,24 +89,8 @@ public class TrackFragment extends Fragment {
             lv.setVisibility(View.VISIBLE);
             playVideoBut.setEnabled(false);
 
-            mLst = new ArrayList<Map<String, String>>();
-            mListAdapter = new SimpleAdapter(getActivity(), mLst, R.layout.card_two_item, FROM, TO);
-
-            mAnimationAdapter = new SwingRightInAnimationAdapter(mListAdapter);
-            mAnimationAdapter.setAbsListView(lv);
-            lv.setAdapter(mAnimationAdapter);
-
-            mViewPagerAdapter = new ControlsFragmentAdapter(getActivity().getFragmentManager());
-            mPager.setAdapter(mViewPagerAdapter);
-            setUpPagerTouchListener();
-
-            mIndicator.setViewPager(mPager);
-            mIndicator.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-                @Override
-                public void onPageSelected(int position) {
-                    TrackFragment.this.onPageSelected(position);
-                }
-            });
+            setUpListView();
+            setUpViewPager();
 
             if (exerciseAlreadyStarted) {
                 onExerciseStarted();
@@ -122,6 +107,29 @@ public class TrackFragment extends Fragment {
         }
 
         return view;
+    }
+
+    private void setUpListView() {
+        mLst = new ArrayList<Map<String, String>>();
+        mListAdapter = new SimpleAdapter(getActivity(), mLst, R.layout.card_two_item, FROM, TO);
+
+        mAnimationAdapter = new SwingRightInAnimationAdapter(mListAdapter);
+        mAnimationAdapter.setAbsListView(lv);
+        lv.setAdapter(mAnimationAdapter);
+    }
+
+    private void setUpViewPager() {
+        mViewPagerAdapter = new ControlsFragmentAdapter(getActivity().getFragmentManager());
+        mPager.setAdapter(mViewPagerAdapter);
+        setUpPagerTouchListener();
+
+        mIndicator.setViewPager(mPager);
+        mIndicator.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                TrackFragment.this.onPageSelected(position);
+            }
+        });
     }
 
     private void setUpPagerTouchListener() {

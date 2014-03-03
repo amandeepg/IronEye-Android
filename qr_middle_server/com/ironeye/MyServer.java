@@ -83,9 +83,7 @@ public class MyServer {
                 try {
                     while (true) {
                         IronMessage msg = IronMessage.parseDelimitedFrom(socketToPhone.getInputStream());
-                        if (msg.getType().equals(IronMessage.MessageType.SET_START)) {
-                            System.out.println("startSet!");
-                        }
+                        System.out.println(msg.getType().toString());
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

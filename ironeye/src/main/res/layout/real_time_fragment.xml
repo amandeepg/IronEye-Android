@@ -74,7 +74,7 @@
                 <com.devspark.robototextview.widget.RobotoTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Review your form:"
+                    android:text="@string/review_your_form"
                     android:layout_gravity="center"
                     app:typeface="roboto_regular"
                     android:textSize="20sp" />

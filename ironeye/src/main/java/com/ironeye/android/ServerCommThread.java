@@ -5,30 +5,34 @@ import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
-import com.ironeye.IronEyeProtos;
+import com.ironeye.android.utils.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import hugo.weaving.DebugLog;
+
+import static com.ironeye.IronEyeProtos.IronMessage;
+
 public class ServerCommThread extends Thread {
 
-    public static final int SERVER_PORT = 38300;
     private static final String TAG = "ServerCommThread";
 
     private Socket mSocket;
-    private MainActivity mAct;
+    private WeakReference<MainActivity> mAct;
+    private String mUid;
 
     public ServerCommThread(MainActivity mainAct) {
         super(TAG);
-        this.mAct = mainAct;
+        this.mAct = new WeakReference<MainActivity>(mainAct);
     }
 
     @Override
@@ -41,96 +45,127 @@ public class ServerCommThread extends Thread {
     }
 
     private void receiveFromServer() throws IOException {
-        ServerSocket mServerSocket = new ServerSocket(SERVER_PORT);
+        final ServerSocket mServerSocket = new ServerSocket(AppConsts.SERVER_PORT);
         mSocket = mServerSocket.accept();
+        final InputStream in = mSocket.getInputStream();
 
-        mAct.onExerciseStarted();
+        getAct().onExerciseStarted();
 
-        IronEyeProtos.IronMessage.UserInfo.Builder userInfo = IronEyeProtos.IronMessage.UserInfo.newBuilder()
-                .setId(AppController.getInstance().currentPerson.getId());
+        sendUserMessage();
 
-        IronEyeProtos.IronMessage msg = IronEyeProtos.IronMessage.newBuilder()
-                .setUserInfo(userInfo)
-                .setType(IronEyeProtos.IronMessage.MessageType.USER_INFO)
-                .build();
-
-        OutputStream out = mSocket.getOutputStream();
-        InputStream in = mSocket.getInputStream();
-
-        msg.writeDelimitedTo(out);
-        String uid = String.valueOf(System.currentTimeMillis());
-
-        boolean mkdirs = FileUtils.getDayFile(mAct, uid).mkdirs();
+        final boolean mkdirs = FileUtils.getDayFile(getAct(), getUid()).mkdirs();
         if (!mkdirs) {
             Log.d(TAG, "Directory not made.");
         }
 
-        final IronEyeProtos.IronMessage.WorkoutInfo workoutInfo;
+        final IronMessage.WorkoutInfo workoutInfo;
 
         while (true) {
-            IronEyeProtos.IronMessage statusMsg = IronEyeProtos.IronMessage.parseDelimitedFrom(in);
-            if (statusMsg.getType().equals(IronEyeProtos.IronMessage.MessageType.WORKOUT_INFO)) {
+            IronMessage statusMsg = IronMessage.parseDelimitedFrom(in);
+            if (statusMsg.getType().equals(IronMessage.MessageType.WORKOUT_INFO)) {
                 workoutInfo = statusMsg.getWorkoutInfo();
                 break;
             }
 
-            ArrayList<Map<String, String>> jointListData = new ArrayList<Map<String, String>>();
-            boolean shouldVibrate = false;
-
-            IronEyeProtos.IronMessage.FormErrorData formError = statusMsg.getErrorData();
-            for (IronEyeProtos.IronMessage.JointError je : formError.getJointList()) {
-                String jointType = je.getJointType().toString();
-                String jointMsg = je.getErrorMessage();
-
-                HashMap<String, String> item = new HashMap<String, String>();
-                item.put("name", jointType);
-                item.put("msg", jointMsg);
-                jointListData.add(item);
-
-                mAct.tts.speak(jointType.replace("_", " "), TextToSpeech.QUEUE_ADD, null);
-                shouldVibrate = true;
-            }
-            if (shouldVibrate) {
-                Vibrator vib = (Vibrator) mAct.getSystemService(Context.VIBRATOR_SERVICE);
-                vib.vibrate(200);
-            }
-
-            mAct.refreshTrackingList(jointListData);
+            handleJointErrorMessage(statusMsg);
         }
 
-        final FileOutputStream fos = new FileOutputStream(FileUtils.getDayFile(mAct, uid, AppConsts.WORKOUT_INFO_FILENAME));
-        workoutInfo.writeTo(fos);
-        fos.close();
-
-        mAct.refreshTrackingList(new ArrayList<Map<String, String>>());
-        mAct.addWorkoutInfoToTrackingFrag(workoutInfo);
-        mAct.refreshLogGraph();
-
-        final File vidFile = FileUtils.getDayFile(mAct, uid, AppConsts.VIDEO_FILENAME);
-        FileUtils.inputStreamToFile(in, vidFile);
-
-        mAct.videoReady(uid);
+        handleWorkoutInfoMessage(workoutInfo);
+        handleVideoStream();
 
         mSocket.close();
         mServerSocket.close();
 
-        mAct.startServerSocket();
+        getAct().startServerSocket();
     }
 
-    public void sendControlMsg(final IronEyeProtos.IronMessage.MessageType type) {
+    private void handleVideoStream() throws IOException {
+        final File vidFile = FileUtils.getDayFile(getAct(), getUid(), AppConsts.VIDEO_FILENAME);
+        FileUtils.inputStreamToFile(mSocket.getInputStream(), vidFile);
+
+        getAct().videoReady(getUid());
+    }
+
+    private String getUid() {
+        if (mUid == null) {
+            mUid = String.valueOf(System.currentTimeMillis());
+        }
+        return mUid;
+    }
+
+    @DebugLog
+    private void handleWorkoutInfoMessage(IronMessage.WorkoutInfo workoutInfo) throws IOException {
+        final FileOutputStream fos = new FileOutputStream(FileUtils.getDayFile(getAct(), getUid(), AppConsts.WORKOUT_INFO_FILENAME));
+        workoutInfo.writeTo(fos);
+        fos.close();
+
+        getAct().refreshTrackingList(new ArrayList<Map<String, String>>());
+        getAct().addWorkoutInfoToTrackingFrag(workoutInfo);
+        getAct().refreshLogGraph();
+    }
+
+    @DebugLog
+    private void handleJointErrorMessage(IronMessage statusMsg) {
+        final ArrayList<Map<String, String>> jointListData = new ArrayList<Map<String, String>>();
+
+        final IronMessage.FormErrorData formError = statusMsg.getErrorData();
+
+        boolean shouldVibrate = false;
+
+        for (IronMessage.JointError je : formError.getJointList()) {
+            final String jointType = je.getJointType().toString();
+            final String jointMsg = je.getErrorMessage();
+
+            final HashMap<String, String> item = new HashMap<String, String>();
+            item.put("name", jointType);
+            item.put("msg", jointMsg);
+            jointListData.add(item);
+
+            getAct().tts.speak(jointType.replace("_", " "), TextToSpeech.QUEUE_ADD, null);
+            shouldVibrate = true;
+        }
+        if (shouldVibrate) {
+            Vibrator vib = (Vibrator) getAct().getSystemService(Context.VIBRATOR_SERVICE);
+            vib.vibrate(200);
+        }
+
+        getAct().refreshTrackingList(jointListData);
+    }
+
+    private void sendUserMessage() throws IOException {
+        final IronMessage.UserInfo.Builder userInfo = IronMessage.UserInfo.newBuilder()
+                .setId(AppController.getInstance().currentPerson.getId());
+
+        final IronMessage userMsg = IronMessage.newBuilder()
+                .setUserInfo(userInfo)
+                .setType(IronMessage.MessageType.USER_INFO)
+                .build();
+
+        sendMessage(userMsg);
+    }
+
+    private synchronized void sendMessage(IronMessage msg) throws IOException {
+        msg.writeDelimitedTo(mSocket.getOutputStream());
+    }
+
+    public void sendControlMsg(final IronMessage.MessageType type) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                IronEyeProtos.IronMessage msg = IronEyeProtos.IronMessage.newBuilder()
+                final IronMessage msg = IronMessage.newBuilder()
                         .setType(type)
                         .build();
 
                 try {
-                    msg.writeDelimitedTo(mSocket.getOutputStream());
+                    sendMessage(msg);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
+    }
+
+    private MainActivity getAct() {
+        return mAct.get();
     }
 }
