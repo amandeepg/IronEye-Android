@@ -243,10 +243,12 @@ public class TrackFragment extends Fragment {
         return true;
     }
 
+    @DebugLog
     public void setCurrentControlItem(int i) {
         mPager.setCurrentItem(i, true);
     }
 
+    @DebugLog
     private void onPageSelected(int position) {
         MainActivity act = (MainActivity) getActivity();
         switch (position) {
@@ -276,6 +278,7 @@ public class TrackFragment extends Fragment {
         setControlFromServer = false;
     }
 
+    @DebugLog
     public void setSetControlFromServer(boolean setControlFromServer) {
         this.setControlFromServer = setControlFromServer;
     }

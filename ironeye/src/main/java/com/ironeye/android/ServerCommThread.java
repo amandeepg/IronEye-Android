@@ -86,6 +86,7 @@ public class ServerCommThread extends Thread {
         getAct().startServerSocket();
     }
 
+    @DebugLog
     private void handleVideoStream() throws IOException {
         final File vidFile = FileUtils.getDayFile(getAct(), getUid(), AppConsts.VIDEO_FILENAME);
         FileUtils.inputStreamToFile(mSocket.getInputStream(), vidFile);
@@ -152,6 +153,7 @@ public class ServerCommThread extends Thread {
         sendMessage(userMsg);
     }
 
+    @DebugLog
     private synchronized void sendMessage(IronMessage msg) throws IOException {
         msg.writeDelimitedTo(mSocket.getOutputStream());
     }
