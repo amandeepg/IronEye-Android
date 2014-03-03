@@ -25,5 +25,10 @@
     <string name="action_settings">Settings</string>
     <string name="review_your_form">Review your form:</string>
     <string name="lbs">lbs.</string>
+    <string name="paused">Paused</string>
+    <string name="exercise_ended">Exercise Ended</string>
+    <string name="end_exercise">End Exercise</string>
+    <string name="on_set_x">On Set %s</string>
+    <string name="please_enter_weight">Please enter a weight.</string>
 
 </resources>

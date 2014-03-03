@@ -1,9 +1,12 @@
 package com.ironeye.android;
 
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.view.ViewPager;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -17,6 +20,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ironeye.android.utils.FileUtils;
 import com.nhaarman.listviewanimations.swinginadapters.AnimationAdapter;
@@ -122,7 +126,8 @@ public class TrackFragment extends Fragment {
     }
 
     private void setUpViewPager() {
-        mViewPagerAdapter = new ControlsFragmentAdapter(getActivity().getFragmentManager());
+        mViewPagerAdapter = new ControlsFragmentAdapter(
+                getActivity().getFragmentManager(), getActivity().getApplicationContext());
         mPager.setAdapter(mViewPagerAdapter);
         setUpPagerTouchListener();
 
@@ -231,7 +236,7 @@ public class TrackFragment extends Fragment {
         }
 
         mPager.setEnabled(true);
-        mPager.setCurrentItem(1);
+        mPager.setCurrentItem(1, false);
         mIndicator.setVisibility(View.VISIBLE);
         mViewPagerAdapter.resetSetCount();
 
@@ -239,10 +244,25 @@ public class TrackFragment extends Fragment {
         setInfoView.removeAllViews();
     }
 
-    public boolean onTapViewPager(MotionEvent e) {
-        int changePos = (e.getX() < mPager.getWidth() / 2) ? -1 : 1;
+    public boolean onTapViewPager(MotionEvent ev) {
+        final int changePos = (ev.getX() < mPager.getWidth() / 2) ? -1 : 1;
+        final int newPos = mPager.getCurrentItem() + changePos;
+
+        if (newPos == 0) {
+            try {
+                getEnteredWeight();
+            } catch (NumberFormatException ex) {
+                promptWeightToast();
+                return true;
+            }
+        }
+
         mPager.setCurrentItem(mPager.getCurrentItem() + changePos, true);
         return true;
+    }
+
+    private int getEnteredWeight() {
+        return Integer.parseInt(weightEditText.getText().toString());
     }
 
     @DebugLog
@@ -266,9 +286,15 @@ public class TrackFragment extends Fragment {
             IronMessage.MessageType msgType = null;
             switch (position) {
                 case 0:
-                    act.serverComms.sendMsgAsync(IronMessage.newBuilder()
-                            .setType(IronMessage.MessageType.SET_START)
-                            .setWeight(Integer.parseInt(weightEditText.getText().toString())));
+                    try {
+                        final int weight = getEnteredWeight();
+                        act.serverComms.sendMsgAsync(IronMessage.newBuilder()
+                                .setType(IronMessage.MessageType.SET_START)
+                                .setWeight(weight));
+                    } catch (NumberFormatException e) {
+                        promptWeightToast();
+                        mPager.setCurrentItem(position + 1, true);
+                    }
                     break;
                 case 1:
                     msgType = IronMessage.MessageType.SET_END;
@@ -280,6 +306,14 @@ public class TrackFragment extends Fragment {
             act.serverComms.sendControlMsgAsync(msgType);
         }
         setControlFromServer = false;
+    }
+
+    private void promptWeightToast() {
+        final Activity activity = getActivity();
+        final Vibrator vib = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
+        
+        Toast.makeText(activity, activity.getString(R.string.please_enter_weight), Toast.LENGTH_SHORT).show();
+        vib.vibrate(200);
     }
 
     @DebugLog

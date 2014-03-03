@@ -2,6 +2,7 @@ package com.ironeye.android;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.support.v13.app.FragmentPagerAdapter;
 
 import com.mattyork.colours.Colour;
@@ -15,19 +16,21 @@ class ControlsFragmentAdapter extends FragmentPagerAdapter {
 
     private int set_num;
     private ControlsFragment setProgressControlPage;
+    private Context mContext;
 
-    public ControlsFragmentAdapter(FragmentManager fm) {
+    public ControlsFragmentAdapter(FragmentManager fm, Context context) {
         super(fm);
 
+        mContext = context;
         resetSetCount();
     }
 
     @Override
     public Fragment getItem(int position) {
-        ControlPage[] controlPages = new ControlPage[]{
-                new ControlPage(Colour.successColor(), "On Set " + set_num, "Start Set"),
-                new ControlPage(Colour.bananaColor(), "Paused", "End Set"),
-                new ControlPage(Colour.watermelonColor(), "Exercise Ended", "End Exercise"),
+        final ControlPage[] controlPages = new ControlPage[]{
+                new ControlPage(Colour.successColor(), mContext.getString(R.string.on_set_x, set_num), mContext.getString(R.string.start_set)),
+                new ControlPage(Colour.bananaColor(), mContext.getString(R.string.paused), mContext.getString(R.string.end_set)),
+                new ControlPage(Colour.watermelonColor(), mContext.getString(R.string.exercise_ended), mContext.getString(R.string.end_exercise)),
         };
 
         Adjacents adj = new Adjacents(
@@ -55,7 +58,7 @@ class ControlsFragmentAdapter extends FragmentPagerAdapter {
     public void incrementSetCount() {
         set_num++;
         if (setProgressControlPage != null) {
-            setProgressControlPage.statusText.setText("On Set " + set_num);
+            setProgressControlPage.statusText.setText(mContext.getString(R.string.on_set_x, set_num));
         }
     }
 }
