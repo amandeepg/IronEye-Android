@@ -15,10 +15,13 @@ import java.util.Scanner;
 import static com.ironeye.IronEyeProtos.IronMessage;
 
 public class MyServer {
+
     public static final String PHONE_HOST = MiddleServerProperties.get("phone_host");
+
     public static final int PHONE_PORT = MiddleServerProperties.getInt("phone_port");
 
     public static final String SERVER_HOST = MiddleServerProperties.get("server_host");
+
     public static final int SERVER_PORT = MiddleServerProperties.getInt("server_port");
 
     private static Socket socketToPhone, socketToServer;
@@ -61,7 +64,7 @@ public class MyServer {
         threads.add(outStreamToInStreamAsync(inFromPhone, outToServer));
         threads.add(outStreamToInStreamAsync(inFromServer, outToPhone));
 
-        for (Thread thread: threads){
+        for (Thread thread : threads) {
             try {
                 thread.join();
             } catch (InterruptedException e) {
@@ -103,7 +106,8 @@ public class MyServer {
             public void run() {
                 try {
                     while (true) {
-                        IronMessage msg = IronMessage.parseDelimitedFrom(socketToPhone.getInputStream());
+                        IronMessage msg = IronMessage
+                                .parseDelimitedFrom(socketToPhone.getInputStream());
                         System.out.println(msg.getType().toString());
                     }
                 } catch (IOException e) {
@@ -128,12 +132,14 @@ public class MyServer {
             }
 
             IronMessage.JointError je1 = IronMessage.JointError.newBuilder()
-                    .setJointType(Math.random() > 0.5 ? IronMessage.JointType.LEFT_HIP : IronMessage.JointType.RIGHT_HAND)
+                    .setJointType(Math.random() > 0.5 ? IronMessage.JointType.LEFT_HIP
+                            : IronMessage.JointType.RIGHT_HAND)
                     .setErrorMessage(Math.random() > 0.5 ? "Wrong" : "Bad")
                     .build();
 
             IronMessage.JointError je2 = IronMessage.JointError.newBuilder()
-                    .setJointType(Math.random() > 0.5 ? IronMessage.JointType.LEFT_FOOT : IronMessage.JointType.RIGHT_ELBOW)
+                    .setJointType(Math.random() > 0.5 ? IronMessage.JointType.LEFT_FOOT
+                            : IronMessage.JointType.RIGHT_ELBOW)
                     .setErrorMessage(Math.random() > 0.5 ? "Wrong" : "Bad")
                     .build();
 
@@ -193,7 +199,7 @@ public class MyServer {
     }
 
     private static Thread outStreamToInStreamAsync(final InputStream in, final OutputStream out) {
-        Thread t=new Thread(new Runnable() {
+        Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -234,7 +240,13 @@ public class MyServer {
     }
 
     private static String scanQr() throws IOException {
-        Process p = Runtime.getRuntime().exec("zbarcam --raw --prescale=700x700");
+        String s;
+        if (MiddleServerProperties.getBoolean("use_zbarcam")) {
+            s = MiddleServerProperties.get("zbarcam_cmd");
+        } else {
+            s = MiddleServerProperties.get("zbarimg_cmd");
+        }
+        Process p = Runtime.getRuntime().exec(s);
         BufferedReader qrReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String id = qrReader.readLine();
         System.out.println("id = " + id);
@@ -245,7 +257,8 @@ public class MyServer {
 
     private static void execAdb() {
         try {
-            Process p = Runtime.getRuntime().exec("adb forward tcp:" + PHONE_PORT + " tcp:" + PHONE_PORT);
+            Process p = Runtime.getRuntime()
+                    .exec("adb forward tcp:" + PHONE_PORT + " tcp:" + PHONE_PORT);
             Scanner sc = new Scanner(p.getErrorStream());
             if (sc.hasNext()) {
                 while (sc.hasNext()) {

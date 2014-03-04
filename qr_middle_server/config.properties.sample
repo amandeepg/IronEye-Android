@@ -1,0 +1,8 @@
+phone_host=localhost
+phone_port=38300
+server_host=138.51.226.115
+server_port=4004
+use_mock=false
+use_zbarcam=false
+zbarcam_cmd=zbarcam --raw --prescale=700x700
+zbarimg_cmd=/home/am/ironeye-i-0/zbarimgloop.sh /home/am/ironeye-i-0/sampleqrcode.png
