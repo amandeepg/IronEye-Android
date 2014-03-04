@@ -278,14 +278,6 @@ public class TrackFragment extends Fragment {
     @DebugLog
     private void onPageSelected(int position) {
         final MainActivity act = (MainActivity) getActivity();
-        switch (position) {
-            case 0:
-                mViewPagerAdapter.incrementSetCount();
-                break;
-            case 2:
-                onExerciseOver();
-                break;
-        }
 
         if (!setControlFromServer) {
             IronMessage.MessageType msgType = null;
@@ -311,6 +303,15 @@ public class TrackFragment extends Fragment {
             act.serverComms.sendControlMsgAsync(msgType);
         }
         setControlFromServer = false;
+
+        switch (position) {
+            case 0:
+                mViewPagerAdapter.incrementSetCount();
+                break;
+            case 2:
+                onExerciseOver();
+                break;
+        }
     }
 
     private void promptWeightToast() {
