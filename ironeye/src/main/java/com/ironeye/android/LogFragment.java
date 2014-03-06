@@ -9,12 +9,14 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,6 +33,8 @@ public class LogFragment extends Fragment {
     private static final float BAR_PADDING = 1.5f;
 
     private static final int BAR_SIZE = 150;
+
+    private static final String TAG = "LogFragment";
 
     private final Runnable refreshGraphTask = new Runnable() {
         @Override
@@ -119,6 +123,9 @@ public class LogFragment extends Fragment {
             try {
                 workoutInfo = FileUtils.fileToProtobuf(
                         new File(dayDir, AppConsts.WORKOUT_INFO_FILENAME));
+            } catch (FileNotFoundException e) {
+                Log.d(TAG, uid + " workout file not found.");
+                continue;
             } catch (IOException e) {
                 e.printStackTrace();
                 continue;
