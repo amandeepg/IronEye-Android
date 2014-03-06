@@ -119,6 +119,7 @@ public class MainActivity extends Activity
                 @Override
                 public void run() {
                     trackFrag.displayWorkoutInfo(workoutInfo);
+                    trackFrag.setSetControlFromServer(true);
                     trackFrag.onExerciseOver();
                 }
             });
@@ -154,17 +155,15 @@ public class MainActivity extends Activity
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    trackFrag.setSetControlFromServer(true);
                     switch (type) {
                         case SET_START:
-                            trackFrag.setSetControlFromServer(true);
                             trackFrag.setCurrentControlItem(0);
                             break;
                         case SET_END:
-                            trackFrag.setSetControlFromServer(true);
                             trackFrag.setCurrentControlItem(1);
                             break;
                         case EXERCISE_END:
-                            trackFrag.setSetControlFromServer(true);
                             trackFrag.setCurrentControlItem(1);
                             break;
                         default:

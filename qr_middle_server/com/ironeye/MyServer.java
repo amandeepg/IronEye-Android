@@ -1,14 +1,16 @@
 package com.ironeye;
 
+import com.google.protobuf.ByteString;
+
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -173,7 +175,15 @@ public class MyServer {
 
         workoutMsg.writeDelimitedTo(outToPhone);
 
-        fileToOutStream(outToPhone, new File("small.mp4"));
+        IronMessage.Video.Builder vidInfo = IronMessage.Video.newBuilder()
+                .setVideoData(ByteString.copyFrom(Files.readAllBytes(Paths.get("small.mp4"))));
+
+        IronMessage vidMsg = IronMessage.newBuilder()
+                .setType(IronMessage.MessageType.VIDEO)
+                .setVideo(vidInfo)
+                .build();
+
+        vidMsg.writeDelimitedTo(outToPhone);
 
         outToPhone.close();
         socketToPhone.close();
@@ -185,17 +195,6 @@ public class MyServer {
                 .setReps((int) (20 + (Math.random() * 20)))
                 .setWeight((int) (20 + (Math.random() * 20)))
                 .build();
-    }
-
-    private static void fileToOutStream(OutputStream outToPhone, File f) throws IOException {
-        FileInputStream fis = new FileInputStream(f);
-        byte[] buffer = new byte[4096];
-        int len;
-        while ((len = fis.read(buffer)) != -1) {
-            outToPhone.write(buffer, 0, len);
-        }
-        outToPhone.flush();
-        fis.close();
     }
 
     private static Thread outStreamToInStreamAsync(final InputStream in, final OutputStream out) {

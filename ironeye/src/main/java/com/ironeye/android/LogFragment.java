@@ -1,5 +1,10 @@
 package com.ironeye.android;
 
+import com.ironeye.android.holograph.Bar;
+import com.ironeye.android.holograph.BarGraph;
+import com.ironeye.android.holograph.YAxisView;
+import com.ironeye.android.utils.FileUtils;
+
 import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Color;
@@ -9,12 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.ironeye.android.holograph.Bar;
-import com.ironeye.android.holograph.BarGraph;
-import com.ironeye.android.holograph.YAxisView;
-
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,9 +29,9 @@ import static com.ironeye.IronEyeProtos.IronMessage;
 public class LogFragment extends Fragment {
 
     private static final float BAR_PADDING = 1.5f;
+
     private static final int BAR_SIZE = 150;
 
-    private SparseArray<String> workoutUids;
     private final Runnable refreshGraphTask = new Runnable() {
         @Override
         public void run() {
@@ -44,6 +44,8 @@ public class LogFragment extends Fragment {
 
     @InjectView(R.id.y_axis_view)
     YAxisView yaxisView;
+
+    private SparseArray<String> workoutUids;
 
     public LogFragment() {
     }
@@ -58,7 +60,8 @@ public class LogFragment extends Fragment {
 
     @DebugLog
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.log_fragment, container, false);
         ButterKnife.inject(this, view);
 
@@ -114,8 +117,8 @@ public class LogFragment extends Fragment {
 
             final IronMessage.WorkoutInfo workoutInfo;
             try {
-                File f = new File(dayDir, AppConsts.WORKOUT_INFO_FILENAME);
-                workoutInfo = IronMessage.WorkoutInfo.parseFrom(new FileInputStream(f));
+                workoutInfo = FileUtils.fileToProtobuf(
+                        new File(dayDir, AppConsts.WORKOUT_INFO_FILENAME));
             } catch (IOException e) {
                 e.printStackTrace();
                 continue;

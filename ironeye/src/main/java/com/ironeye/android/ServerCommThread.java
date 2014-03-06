@@ -1,14 +1,12 @@
 package com.ironeye.android;
 
+import com.ironeye.android.utils.FileUtils;
+
 import android.content.Context;
 import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
-import com.ironeye.android.utils.FileUtils;
-
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -27,7 +25,9 @@ public class ServerCommThread extends Thread {
     private static final String TAG = "ServerCommThread";
 
     private Socket mSocket;
+
     private WeakReference<MainActivity> mAct;
+
     private String mUid;
 
     public ServerCommThread(MainActivity mainAct) {
@@ -58,14 +58,17 @@ public class ServerCommThread extends Thread {
             Log.d(TAG, "Directory not made.");
         }
 
-        boolean isWorkoutMsg = false;
-        while (!isWorkoutMsg) {
+        boolean isCommOver = false;
+        while (!isCommOver) {
             IronMessage statusMsg = IronMessage.parseDelimitedFrom(in);
             IronMessage.MessageType type = statusMsg.getType();
             switch (type) {
                 case WORKOUT_INFO:
                     handleWorkoutInfoMsg(statusMsg);
-                    isWorkoutMsg = true;
+                    break;
+                case VIDEO:
+                    handleVideoMsg(statusMsg);
+                    isCommOver = true;
                     break;
                 case FORM_ERROR:
                     handleJointErrorMsg(statusMsg);
@@ -78,20 +81,10 @@ public class ServerCommThread extends Thread {
             }
         }
 
-        handleVideoStream();
-
         mSocket.close();
         mServerSocket.close();
 
         getAct().startServerSocket();
-    }
-
-    @DebugLog
-    private void handleVideoStream() throws IOException {
-        final File vidFile = FileUtils.getDayFile(getAct(), getUid(), AppConsts.VIDEO_FILENAME);
-        FileUtils.inputStreamToFile(mSocket.getInputStream(), vidFile);
-
-        getAct().videoReady(getUid());
     }
 
     private String getUid() {
@@ -105,13 +98,20 @@ public class ServerCommThread extends Thread {
     private void handleWorkoutInfoMsg(IronMessage statusMsg) throws IOException {
         final IronMessage.WorkoutInfo workoutInfo = statusMsg.getWorkoutInfo();
 
-        final FileOutputStream fos = new FileOutputStream(FileUtils.getDayFile(getAct(), getUid(), AppConsts.WORKOUT_INFO_FILENAME));
-        workoutInfo.writeTo(fos);
-        fos.close();
+        FileUtils.protobufToFile(workoutInfo,
+                FileUtils.getDayFile(getAct(), getUid(), AppConsts.WORKOUT_INFO_FILENAME));
 
         getAct().refreshTrackingList(new ArrayList<Map<String, String>>());
         getAct().addWorkoutInfoToTrackingFrag(workoutInfo);
         getAct().refreshLogGraph();
+    }
+
+    private void handleVideoMsg(IronMessage videoMsg) throws IOException {
+        FileUtils.byteArrayToFile(
+                FileUtils.getDayFile(getAct(), getUid(), AppConsts.VIDEO_FILENAME),
+                videoMsg.getVideo().getVideoData().toByteArray());
+
+        getAct().videoReady(getUid());
     }
 
     @DebugLog
