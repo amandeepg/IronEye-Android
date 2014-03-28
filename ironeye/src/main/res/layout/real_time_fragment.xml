@@ -9,44 +9,59 @@
     android:background="#E5E5E5">
 
     <RelativeLayout
-        android:id="@+id/weight_entry_holder"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 
-        <com.devspark.robototextview.widget.RobotoEditText
-            android:id="@+id/weight_edit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            app:typeface="roboto_bold"
-            android:textSize="25sp"
-            android:gravity="right"
-            android:paddingRight="60dp"
-            android:paddingLeft="100dp"
-            tools:text="255"/>
-
-        <com.devspark.robototextview.widget.RobotoTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="10dp"
-            android:text="@string/weight"
-            android:labelFor="@id/weight_edit"
-            android:textColor="@android:color/darker_gray"
-            app:typeface="roboto_condensed_bold"
-            android:textSize="25sp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true" />
-
-        <com.devspark.robototextview.widget.RobotoTextView
+        <RelativeLayout
+            android:id="@+id/weight_entry_holder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:paddingRight="10dp"
-            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/colourButton">
+
+            <com.devspark.robototextview.widget.RobotoEditText
+                android:id="@+id/weight_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                app:typeface="roboto_bold"
+                android:textSize="25sp"
+                android:gravity="right"
+                android:paddingRight="60dp"
+                android:paddingLeft="100dp"
+                tools:text="255"/>
+
+            <com.devspark.robototextview.widget.RobotoTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:text="@string/weight"
+                android:labelFor="@id/weight_edit"
+                android:textColor="@android:color/darker_gray"
+                app:typeface="roboto_condensed_bold"
+                android:textSize="25sp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true" />
+
+            <com.devspark.robototextview.widget.RobotoTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingRight="10dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:text="@string/lbs"
+                app:typeface="roboto_condensed_light"
+                android:textSize="25sp"/>
+        </RelativeLayout>
+
+        <ImageView
+            android:layout_width="@dimen/color_swatch_small"
+            android:layout_height="@dimen/color_swatch_small"
+            android:id="@+id/colourButton"
             android:layout_alignParentRight="true"
-            android:text="@string/lbs"
-            app:typeface="roboto_condensed_light"
-            android:textSize="25sp"/>
+            android:layout_centerVertical="true"/>
+
     </RelativeLayout>
 
     <RelativeLayout

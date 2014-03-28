@@ -28,5 +28,8 @@
     <string name="end_exercise">End Exercise</string>
     <string name="on_set_x">On Set %s</string>
     <string name="please_enter_weight">Please enter a weight.</string>
+    <string name="color_picker_default_title">Select a Color</string>
+    <string name="color_swatch_description">Color</string>
+    <string name="color_swatch_description_selected">Color selected</string>
 
 </resources>

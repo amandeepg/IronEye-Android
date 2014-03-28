@@ -121,17 +121,16 @@ public class ServerCommThread extends Thread {
         final IronMessage.FormErrorData formError = statusMsg.getErrorData();
 
         boolean shouldVibrate = false;
-
-        for (IronMessage.JointError je : formError.getJointList()) {
-            final String jointType = je.getJointType().toString();
-            final String jointMsg = je.getErrorMessage();
+        
+        for (IronMessage.Error error : formError.getErrorList()) {
+            final String jointMsg = error.getErrorMessage();
 
             final HashMap<String, String> item = new HashMap<String, String>();
-            item.put("name", jointType);
-            item.put("msg", jointMsg);
+            item.put("name", jointMsg);
+            item.put("msg", "");
             jointListData.add(item);
 
-            getAct().tts.speak(jointType.replace("_", " "), TextToSpeech.QUEUE_ADD, null);
+            getAct().tts.speak(jointMsg.replace("_", " "), TextToSpeech.QUEUE_ADD, null);
             shouldVibrate = true;
         }
         if (shouldVibrate) {
@@ -155,6 +154,9 @@ public class ServerCommThread extends Thread {
 
     @DebugLog
     private synchronized void sendMsg(IronMessage msg) throws IOException {
+        if (mSocket == null) {
+            return;
+        }
         msg.writeDelimitedTo(mSocket.getOutputStream());
     }
 

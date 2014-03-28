@@ -133,24 +133,15 @@ public class MyServer {
                         .writeDelimitedTo(outToPhone);
             }
 
-            IronMessage.JointError je1 = IronMessage.JointError.newBuilder()
-                    .setJointType(Math.random() > 0.5 ? IronMessage.JointType.LEFT_HIP
-                            : IronMessage.JointType.RIGHT_HAND)
-                    .setErrorMessage(Math.random() > 0.5 ? "Wrong" : "Bad")
-                    .build();
+            IronMessage.Error.Builder err1 = IronMessage.Error.newBuilder()
+                    .setErrorMessage("You're terrible.");
 
-            IronMessage.JointError je2 = IronMessage.JointError.newBuilder()
-                    .setJointType(Math.random() > 0.5 ? IronMessage.JointType.LEFT_FOOT
-                            : IronMessage.JointType.RIGHT_ELBOW)
-                    .setErrorMessage(Math.random() > 0.5 ? "Wrong" : "Bad")
-                    .build();
-
-            ArrayList<IronMessage.JointError> jes = new ArrayList<IronMessage.JointError>();
-            jes.add(je1);
-            jes.add(je2);
+            IronMessage.Error.Builder err2 = IronMessage.Error.newBuilder()
+                    .setErrorMessage("You're terrible.");
 
             IronMessage.FormErrorData.Builder fed = IronMessage.FormErrorData.newBuilder()
-                    .addAllJoint(jes);
+                    .addError(err1)
+                    .addError(err2);
 
             IronMessage statusMsg = IronMessage.newBuilder()
                     .setType(IronMessage.MessageType.FORM_ERROR)

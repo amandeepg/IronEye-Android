@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -17,12 +18,19 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.colorpicker.ColorPickerDialog;
+import com.android.colorpicker.ColorPickerSwatch;
+import com.android.colorpicker.ColorStateDrawable;
+import com.ironeye.IronEyeProtos;
 import com.ironeye.android.utils.FileUtils;
+import com.mattyork.colours.Colour;
 import com.nhaarman.listviewanimations.swinginadapters.AnimationAdapter;
 import com.nhaarman.listviewanimations.swinginadapters.prepared.SwingRightInAnimationAdapter;
 import com.viewpagerindicator.CirclePageIndicator;
@@ -74,6 +82,9 @@ public class TrackFragment extends Fragment {
     @InjectView(R.id.weight_edit)
     EditText weightEditText;
 
+    @InjectView(R.id.colourButton)
+    ImageView colourButton;
+
     private ArrayList<Map<String, String>> mLst;
     private SimpleAdapter mListAdapter;
     private AnimationAdapter mAnimationAdapter;
@@ -81,6 +92,8 @@ public class TrackFragment extends Fragment {
     private ControlsFragmentAdapter mViewPagerAdapter;
     private boolean exerciseAlreadyStarted;
     private boolean setControlFromServer = true;
+    private int[] cols;
+    private int selectedColour;
 
     public TrackFragment(int type) {
         this.type = type;
@@ -118,7 +131,20 @@ public class TrackFragment extends Fragment {
             displayWorkoutInfo(workoutInfo);
         }
 
+        final String[] colsStr = getResources().getStringArray(R.array.default_color_choice_values);
+        cols = new int[colsStr.length];
+        for (int i = 0; i < colsStr.length; i++) {
+            cols[i] = Colour.parseColor(colsStr[i]);
+        }
+        setSelectedColour(cols[6]);
+
         return view;
+    }
+
+    private void setSelectedColour(int col) {
+        selectedColour = col;
+        colourButton.setImageDrawable(new ColorStateDrawable(new Drawable[]
+                {getResources().getDrawable(R.drawable.color_picker_swatch)}, selectedColour));
     }
 
     private void setUpListView() {
@@ -227,6 +253,28 @@ public class TrackFragment extends Fragment {
         startActivity(intent);
     }
 
+    @OnClick(R.id.colourButton)
+    public void clickColourChange() {
+
+        final ColorPickerDialog colorPicker = ColorPickerDialog.newInstance(
+                R.string.color_picker_default_title,
+                cols,
+                selectedColour,
+                4,
+                ColorPickerDialog.SIZE_SMALL);
+
+        colorPicker.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
+
+            @Override
+            public void onColorSelected(int colour) {
+                setSelectedColour(colour);
+                sendDotColourMessage();
+            }
+
+        });
+        colorPicker.show(getFragmentManager(), "colourPicker");
+    }
+
     public void onExerciseOver() {
         mPager.setEnabled(false);
         mPager.setCurrentItem(2);
@@ -288,6 +336,7 @@ public class TrackFragment extends Fragment {
                         act.serverComms.sendMsgAsync(IronMessage.newBuilder()
                                 .setType(IronMessage.MessageType.SET_START)
                                 .setWeight(weight));
+                        sendDotColourMessage();
                     } catch (NumberFormatException e) {
                         promptWeightToast();
                         mPager.setCurrentItem(position + 1, true);
@@ -312,6 +361,13 @@ public class TrackFragment extends Fragment {
                 onExerciseOver();
                 break;
         }
+    }
+
+    private void sendDotColourMessage() {
+        ((MainActivity) getActivity())
+                .serverComms.sendMsgAsync(IronMessage.newBuilder()
+                .setType(IronMessage.MessageType.CHANGE_DOT_COLOUR)
+                .setDotColour(selectedColour));
     }
 
     private void promptWeightToast() {
