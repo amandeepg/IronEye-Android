@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.view.ViewPager;
+import android.text.InputFilter;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -30,6 +31,7 @@ import com.android.colorpicker.ColorPickerSwatch;
 import com.android.colorpicker.ColorStateDrawable;
 import com.ironeye.IronEyeProtos;
 import com.ironeye.android.utils.FileUtils;
+import com.ironeye.android.utils.MinMaxInputFilter;
 import com.mattyork.colours.Colour;
 import com.nhaarman.listviewanimations.swinginadapters.AnimationAdapter;
 import com.nhaarman.listviewanimations.swinginadapters.prepared.SwingRightInAnimationAdapter;
@@ -85,6 +87,9 @@ public class TrackFragment extends Fragment {
     @InjectView(R.id.weight_edit)
     EditText weightEditText;
 
+    @InjectView(R.id.reps_edit)
+    EditText repsEditText;
+
     @InjectView(R.id.colourButton)
     ImageView colourButton;
 
@@ -135,6 +140,9 @@ public class TrackFragment extends Fragment {
 
             displayWorkoutInfo(workoutInfo);
         }
+
+        weightEditText.setFilters(new InputFilter[]{ new MinMaxInputFilter(0, 999)});
+        repsEditText.setFilters(new InputFilter[]{ new MinMaxInputFilter(0, 99)});
 
         final String[] colsStr = getResources().getStringArray(R.array.default_color_choice_values);
         cols = new int[colsStr.length];
