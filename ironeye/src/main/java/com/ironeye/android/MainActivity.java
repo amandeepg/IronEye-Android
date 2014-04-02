@@ -126,6 +126,18 @@ public class MainActivity extends Activity
         }
     }
 
+    public void onRep(final int rep) {
+        final TrackFragment trackFrag = getTrackFragment();
+        if (trackFrag != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    trackFrag.onRepCompleted(rep);
+                }
+            });
+        }
+    }
+
     public void videoReady(final String uid) {
         final TrackFragment trackFrag = getTrackFragment();
         if (trackFrag != null) {

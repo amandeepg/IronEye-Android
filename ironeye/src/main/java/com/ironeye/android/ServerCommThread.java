@@ -66,6 +66,9 @@ public class ServerCommThread extends Thread {
                 case WORKOUT_INFO:
                     handleWorkoutInfoMsg(statusMsg);
                     break;
+                case WORKOUT_UPDATE:
+                    handleWorkoutUpdateMsg(statusMsg);
+                    break;
                 case VIDEO:
                     handleVideoMsg(statusMsg);
                     isCommOver = true;
@@ -104,6 +107,12 @@ public class ServerCommThread extends Thread {
         getAct().refreshTrackingList(new ArrayList<Map<String, String>>());
         getAct().addWorkoutInfoToTrackingFrag(workoutInfo);
         getAct().refreshLogGraph();
+    }
+
+    @DebugLog
+    private void handleWorkoutUpdateMsg(IronMessage statusMsg) throws IOException {
+        final IronMessage.WorkoutUpdate workoutUpdate = statusMsg.getWorkoutUpdate();
+        getAct().onRep(workoutUpdate.getCurrentRep());
     }
 
     private void handleVideoMsg(IronMessage videoMsg) throws IOException {

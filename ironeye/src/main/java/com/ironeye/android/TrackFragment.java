@@ -56,6 +56,7 @@ public class TrackFragment extends Fragment {
     private static final int[] TO = new int[]{android.R.id.text1, android.R.id.text2};
     private final int type;
     public WorkoutInfo workoutInfo;
+    private int mCurrTargetReps = -1;
 
     @InjectView(R.id.listView)
     ListView lv;
@@ -355,6 +356,11 @@ public class TrackFragment extends Fragment {
                     try {
                         final int weight = getEnteredWeight();
                         final int reps = getEnteredReps();
+                        if (reps > 0) {
+                            mCurrTargetReps = reps;
+                        } else {
+                            mCurrTargetReps = -1;
+                        }
                         act.serverComms.sendMsgAsync(IronMessage.newBuilder()
                                 .setType(IronMessage.MessageType.SET_START)
                                 .setSet(IronMessage.Set.newBuilder()
@@ -405,5 +411,11 @@ public class TrackFragment extends Fragment {
     @DebugLog
     public void setSetControlFromServer(boolean setControlFromServer) {
         this.setControlFromServer = setControlFromServer;
+    }
+
+    public void onRepCompleted(int rep) {
+        if (rep == mCurrTargetReps) {
+            mPager.setCurrentItem(1, true);
+        }
     }
 }

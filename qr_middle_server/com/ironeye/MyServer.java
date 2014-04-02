@@ -126,6 +126,16 @@ public class MyServer {
                         .setType(IronMessage.MessageType.SET_START)
                         .build()
                         .writeDelimitedTo(outToPhone);
+
+                for (int j = 1; j <= 5; j++) {
+                    Thread.sleep(1500);
+                    IronMessage.newBuilder()
+                            .setType(IronMessage.MessageType.WORKOUT_UPDATE)
+                            .setWorkoutUpdate(IronMessage.WorkoutUpdate.newBuilder()
+                                    .setCurrentRep(j))
+                            .build()
+                            .writeDelimitedTo(outToPhone);
+                }
             } else if (i == 1) {
                 IronMessage.newBuilder()
                         .setType(IronMessage.MessageType.SET_END)
