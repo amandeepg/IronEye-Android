@@ -332,7 +332,11 @@ public class TrackFragment extends Fragment {
     }
 
     private int getEnteredReps() {
-        return Integer.parseInt(repsEditText.getText().toString());
+        try {
+            return Integer.parseInt(repsEditText.getText().toString());
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
 
     @DebugLog
