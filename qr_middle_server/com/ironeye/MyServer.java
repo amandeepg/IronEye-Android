@@ -134,10 +134,10 @@ public class MyServer {
             }
 
             IronMessage.Error.Builder err1 = IronMessage.Error.newBuilder()
-                    .setErrorMessage("You're terrible.");
+                    .setErrorMessage("Bar is too tilted");
 
             IronMessage.Error.Builder err2 = IronMessage.Error.newBuilder()
-                    .setErrorMessage("You're terrible.");
+                    .setErrorMessage("Bring knees forward");
 
             IronMessage.FormErrorData.Builder fed = IronMessage.FormErrorData.newBuilder()
                     .addError(err1)

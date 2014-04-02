@@ -31,5 +31,7 @@
     <string name="color_picker_default_title">Select a Color</string>
     <string name="color_swatch_description">Color</string>
     <string name="color_swatch_description_selected">Color selected</string>
+    <string name="target_reps">Rep goal</string>
+    <string name="error_colour">Dot Colour: </string>
 
 </resources>

@@ -58,6 +58,9 @@ public class TrackFragment extends Fragment {
     @InjectView(R.id.listView)
     ListView lv;
 
+    @InjectView(R.id.user_input_lay)
+    ViewGroup userInputLay;
+
     @InjectView(R.id.sets_info_holder)
     ViewGroup setsInfoHolder;
 
@@ -111,6 +114,7 @@ public class TrackFragment extends Fragment {
             controlsLay.setVisibility(View.VISIBLE);
             weightEntryHolder.setVisibility(View.VISIBLE);
             lv.setVisibility(View.VISIBLE);
+            userInputLay.setVisibility(View.VISIBLE);
             playVideoBut.setEnabled(false);
 
             setUpListView();
@@ -126,6 +130,7 @@ public class TrackFragment extends Fragment {
             controlsLay.setVisibility(View.GONE);
             weightEntryHolder.setVisibility(View.GONE);
             lv.setVisibility(View.GONE);
+            userInputLay.setVisibility(View.GONE);
             playVideoBut.setEnabled(true);
 
             displayWorkoutInfo(workoutInfo);
