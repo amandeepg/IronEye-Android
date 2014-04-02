@@ -54,7 +54,7 @@
                 android:id="@+id/weight_entry_holder"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="25">
+                android:layout_weight="27">
 
                 <com.devspark.robototextview.widget.RobotoEditText
                     android:id="@+id/weight_edit"
