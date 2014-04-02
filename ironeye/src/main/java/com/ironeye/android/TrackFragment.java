@@ -331,6 +331,10 @@ public class TrackFragment extends Fragment {
         return Integer.parseInt(weightEditText.getText().toString());
     }
 
+    private int getEnteredReps() {
+        return Integer.parseInt(repsEditText.getText().toString());
+    }
+
     @DebugLog
     public void setCurrentControlItem(int i) {
         mPager.setCurrentItem(i, true);
@@ -346,9 +350,12 @@ public class TrackFragment extends Fragment {
                 case 0:
                     try {
                         final int weight = getEnteredWeight();
+                        final int reps = getEnteredReps();
                         act.serverComms.sendMsgAsync(IronMessage.newBuilder()
                                 .setType(IronMessage.MessageType.SET_START)
-                                .setWeight(weight));
+                                .setSet(IronMessage.Set.newBuilder()
+                                        .setWeight(weight)
+                                        .setReps(reps)));
                         sendDotColourMessage();
                     } catch (NumberFormatException e) {
                         promptWeightToast();
