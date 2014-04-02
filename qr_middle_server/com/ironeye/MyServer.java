@@ -110,7 +110,7 @@ public class MyServer {
                     while (true) {
                         IronMessage msg = IronMessage
                                 .parseDelimitedFrom(socketToPhone.getInputStream());
-                        System.out.println(msg.getType().toString());
+                        System.out.println(msg);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
