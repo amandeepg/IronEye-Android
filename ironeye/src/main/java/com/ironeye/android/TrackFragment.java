@@ -19,7 +19,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -29,12 +28,9 @@ import android.widget.Toast;
 import com.android.colorpicker.ColorPickerDialog;
 import com.android.colorpicker.ColorPickerSwatch;
 import com.android.colorpicker.ColorStateDrawable;
-import com.ironeye.IronEyeProtos;
 import com.ironeye.android.utils.FileUtils;
 import com.ironeye.android.utils.MinMaxInputFilter;
 import com.mattyork.colours.Colour;
-import com.nhaarman.listviewanimations.swinginadapters.AnimationAdapter;
-import com.nhaarman.listviewanimations.swinginadapters.prepared.SwingRightInAnimationAdapter;
 import com.viewpagerindicator.CirclePageIndicator;
 
 import java.util.ArrayList;
@@ -96,7 +92,6 @@ public class TrackFragment extends Fragment {
 
     private ArrayList<Map<String, String>> mLst;
     private SimpleAdapter mListAdapter;
-    private AnimationAdapter mAnimationAdapter;
     private String uid;
     private ControlsFragmentAdapter mViewPagerAdapter;
     private boolean exerciseAlreadyStarted;
@@ -164,10 +159,7 @@ public class TrackFragment extends Fragment {
     private void setUpListView() {
         mLst = new ArrayList<Map<String, String>>();
         mListAdapter = new SimpleAdapter(getActivity(), mLst, R.layout.card_two_item, FROM, TO);
-
-        mAnimationAdapter = new SwingRightInAnimationAdapter(mListAdapter);
-        mAnimationAdapter.setAbsListView(lv);
-        lv.setAdapter(mAnimationAdapter);
+        lv.setAdapter(mListAdapter);
     }
 
     private void setUpViewPager() {
@@ -204,7 +196,6 @@ public class TrackFragment extends Fragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mAnimationAdapter.reset();
                 refreshList(lst);
             }
         });
