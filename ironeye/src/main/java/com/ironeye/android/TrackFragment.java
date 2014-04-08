@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -50,6 +51,7 @@ public class TrackFragment extends Fragment {
     public static final int HISTORICAL_TYPE = 2;
     private static final String[] FROM = new String[]{"name", "msg"};
     private static final int[] TO = new int[]{android.R.id.text1, android.R.id.text2};
+    private static final String TAG = "TrackFragment";
     private final int type;
     public WorkoutInfo workoutInfo;
     private int mCurrTargetReps = -1;
@@ -146,6 +148,10 @@ public class TrackFragment extends Fragment {
             cols[i] = Colour.parseColor(colsStr[i]);
         }
         setSelectedColour(cols[6]);
+
+        SharedPreferences prefs = getActivity().getSharedPreferences(TAG, Context.MODE_PRIVATE);
+        weightEditText.setText(prefs.getString("weight", ""));
+        repsEditText.setText(prefs.getString("reps", ""));
 
         return view;
     }
@@ -352,6 +358,13 @@ public class TrackFragment extends Fragment {
                         } else {
                             mCurrTargetReps = -1;
                         }
+
+                        getActivity().getSharedPreferences(TAG, Context.MODE_PRIVATE)
+                                .edit()
+                                .putString("weight", String.valueOf(weight))
+                                .putString("reps", String.valueOf(reps))
+                                .commit();
+
                         act.serverComms.sendMsgAsync(IronMessage.newBuilder()
                                 .setType(IronMessage.MessageType.SET_START)
                                 .setSet(IronMessage.Set.newBuilder()

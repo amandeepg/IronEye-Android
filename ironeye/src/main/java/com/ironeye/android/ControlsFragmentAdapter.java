@@ -14,7 +14,7 @@ class ControlsFragmentAdapter extends FragmentPagerAdapter {
 
     private final int COUNT = 3;
 
-    private int set_num;
+    private int setNum;
     private ControlsFragment setProgressControlPage;
     private Context mContext;
 
@@ -28,7 +28,7 @@ class ControlsFragmentAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         final ControlPage[] controlPages = new ControlPage[]{
-                new ControlPage(Colour.successColor(), mContext.getString(R.string.on_set_x, set_num), mContext.getString(R.string.start_set)),
+                new ControlPage(Colour.successColor(), mContext.getString(R.string.on_set_x, setNum), mContext.getString(R.string.start_set)),
                 new ControlPage(Colour.bananaColor(), mContext.getString(R.string.paused), mContext.getString(R.string.end_set)),
                 new ControlPage(Colour.watermelonColor(), mContext.getString(R.string.exercise_ended), mContext.getString(R.string.end_exercise)),
         };
@@ -52,13 +52,17 @@ class ControlsFragmentAdapter extends FragmentPagerAdapter {
     }
 
     public void resetSetCount() {
-        set_num = 0;
+        setNum = 0;
     }
 
     public void incrementSetCount() {
-        set_num++;
+        setNum++;
         if (setProgressControlPage != null) {
-            setProgressControlPage.statusText.setText(mContext.getString(R.string.on_set_x, set_num));
+            setProgressControlPage.statusText.setText(mContext.getString(R.string.on_set_x, setNum));
         }
+    }
+
+    public int getSetNum() {
+        return setNum;
     }
 }
