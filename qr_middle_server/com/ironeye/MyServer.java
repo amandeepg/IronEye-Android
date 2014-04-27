@@ -118,8 +118,8 @@ public class MyServer {
             }
         }).start();
 
-        for (int i = 0; i < 3; i++) {
-            Thread.sleep(3000 - i * 300);
+        for (int i = 0; i < 5; i++) {
+            Thread.sleep(5000 - i * 300);
 
             if (i == 0) {
                 IronMessage.newBuilder()
@@ -127,42 +127,50 @@ public class MyServer {
                         .build()
                         .writeDelimitedTo(outToPhone);
 
-                for (int j = 1; j <= 5; j++) {
-                    Thread.sleep(1500);
-                    IronMessage.newBuilder()
-                            .setType(IronMessage.MessageType.WORKOUT_UPDATE)
-                            .setWorkoutUpdate(IronMessage.WorkoutUpdate.newBuilder()
-                                    .setCurrentRep(j))
-                            .build()
-                            .writeDelimitedTo(outToPhone);
-                }
-            } else if (i == 1) {
+//                for (int j = 1; j <= 5; j++) {
+//                    Thread.sleep(1500);
+//                    IronMessage.newBuilder()
+//                            .setType(IronMessage.MessageType.WORKOUT_UPDATE)
+//                            .setWorkoutUpdate(IronMessage.WorkoutUpdate.newBuilder()
+//                                    .setCurrentRep(j))
+//                            .build()
+//                            .writeDelimitedTo(outToPhone);
+//                }
+            } else if (i == 3) {
                 IronMessage.newBuilder()
                         .setType(IronMessage.MessageType.SET_END)
                         .build()
                         .writeDelimitedTo(outToPhone);
             }
 
-            IronMessage.Error.Builder err1 = IronMessage.Error.newBuilder()
-                    .setErrorMessage("Bar is too tilted");
+            if (i == 1) {
+                IronMessage.Error.Builder err1 = IronMessage.Error.newBuilder()
+                        .setErrorMessage("Lean forward & hips back");
 
-            IronMessage.Error.Builder err2 = IronMessage.Error.newBuilder()
-                    .setErrorMessage("Bring knees forward");
+//            IronMessage.Error.Builder err2 = IronMessage.Error.newBuilder()
+//                    .setErrorMessage("Bring knees forward");
 
-            IronMessage.FormErrorData.Builder fed = IronMessage.FormErrorData.newBuilder()
-                    .addError(err1)
-                    .addError(err2);
+                IronMessage.FormErrorData.Builder fed = IronMessage.FormErrorData.newBuilder()
+                        .addError(err1);
+//                    .addError(err2);
 
-            IronMessage statusMsg = IronMessage.newBuilder()
-                    .setType(IronMessage.MessageType.FORM_ERROR)
-                    .setErrorData(fed)
-                    .build();
+                IronMessage statusMsg = IronMessage.newBuilder()
+                        .setType(IronMessage.MessageType.FORM_ERROR)
+                        .setErrorData(fed)
+                        .build();
 
-            statusMsg.writeDelimitedTo(outToPhone);
+                statusMsg.writeDelimitedTo(outToPhone);
+            } else if (i == 2) {
+                IronMessage statusMsg = IronMessage.newBuilder()
+                        .setType(IronMessage.MessageType.FORM_ERROR)
+                        .setErrorData( IronMessage.FormErrorData.newBuilder())
+                        .build();
+
+                statusMsg.writeDelimitedTo(outToPhone);
+            }
         }
 
         ArrayList<IronMessage.Set> sets = new ArrayList<IronMessage.Set>();
-        sets.add(randomSet());
         sets.add(randomSet());
         sets.add(randomSet());
 
@@ -191,10 +199,12 @@ public class MyServer {
         socket.close();
     }
 
+    static int i = 0;
+
     private static IronMessage.Set randomSet() {
         return IronMessage.Set.newBuilder()
-                .setReps((int) (20 + (Math.random() * 20)))
-                .setWeight((int) (20 + (Math.random() * 20)))
+                .setReps(6)
+                .setWeight(100 + (i++) * 40)
                 .build();
     }
 

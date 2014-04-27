@@ -222,6 +222,12 @@ public class TrackFragment extends Fragment {
     }
 
     public void displayWorkoutInfo(final WorkoutInfo workoutInfo) {
+        if (type == HISTORICAL_TYPE) {
+            playVideoBut.setEnabled(true);
+        } else {
+            playVideoBut.setEnabled(false);
+        }
+
         int i = 1;
         for (IronMessage.Set set : workoutInfo.getSetList()) {
             final View view = getActivity().getLayoutInflater().inflate(R.layout.rep_weight_card, setsInfoHolder, false);
@@ -398,10 +404,7 @@ public class TrackFragment extends Fragment {
     }
 
     private void sendDotColourMessage() {
-        ((MainActivity) getActivity())
-                .serverComms.sendMsgAsync(IronMessage.newBuilder()
-                .setType(IronMessage.MessageType.CHANGE_DOT_COLOUR)
-                .setDotColour(selectedColour));
+        //do nothing
     }
 
     private void promptWeightToast() {

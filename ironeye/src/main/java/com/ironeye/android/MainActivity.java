@@ -160,9 +160,10 @@ public class MainActivity extends Activity
         });
     }
 
-
-    public void moveControls(final IronMessage.MessageType type) {
+    @DebugLog
+    public void moveControls(final IronMessage msg) {
         final TrackFragment trackFrag = getTrackFragment();
+        final IronMessage.MessageType type = msg.getType();
         if (trackFrag != null) {
             runOnUiThread(new Runnable() {
                 @Override
@@ -176,7 +177,7 @@ public class MainActivity extends Activity
                             trackFrag.setCurrentControlItem(1);
                             break;
                         case EXERCISE_END:
-                            trackFrag.setCurrentControlItem(1);
+                            trackFrag.setCurrentControlItem(2);
                             break;
                         default:
                             trackFrag.setSetControlFromServer(false);

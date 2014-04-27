@@ -1,11 +1,11 @@
 package com.ironeye.android;
 
-import com.ironeye.android.utils.FileUtils;
-
 import android.content.Context;
 import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+
+import com.ironeye.android.utils.FileUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +29,8 @@ public class ServerCommThread extends Thread {
     private WeakReference<MainActivity> mAct;
 
     private String mUid;
+
+    private ArrayList<String> prevErrors = new ArrayList<String>();
 
     public ServerCommThread(MainActivity mainAct) {
         super(TAG);
@@ -79,8 +81,10 @@ public class ServerCommThread extends Thread {
                 case SET_START:
                 case SET_END:
                 case EXERCISE_END:
-                    getAct().moveControls(type);
+                    getAct().moveControls(statusMsg);
                     break;
+                default:
+                    handleUnknown(statusMsg);
             }
         }
 
@@ -88,6 +92,10 @@ public class ServerCommThread extends Thread {
         mServerSocket.close();
 
         getAct().startServerSocket();
+    }
+
+    @DebugLog
+    private void handleUnknown(@SuppressWarnings("UnusedParameters") IronMessage statusMsg) {
     }
 
     private String getUid() {
@@ -116,11 +124,13 @@ public class ServerCommThread extends Thread {
     }
 
     private void handleVideoMsg(IronMessage videoMsg) throws IOException {
+        Log.d(TAG, "handleVideoMsg");
         FileUtils.byteArrayToFile(
                 FileUtils.getDayFile(getAct(), getUid(), AppConsts.VIDEO_FILENAME),
                 videoMsg.getVideo().getVideoData().toByteArray());
 
         getAct().videoReady(getUid());
+        sendMsg(IronMessage.newBuilder());
     }
 
     @DebugLog
@@ -129,7 +139,7 @@ public class ServerCommThread extends Thread {
 
         final IronMessage.FormErrorData formError = statusMsg.getErrorData();
 
-        boolean shouldVibrate = false;
+        ArrayList<String> currErrors = new ArrayList<String>();
         
         for (IronMessage.Error error : formError.getErrorList()) {
             final String jointMsg = error.getErrorMessage();
@@ -139,13 +149,19 @@ public class ServerCommThread extends Thread {
             item.put("msg", "");
             jointListData.add(item);
 
-            getAct().tts.speak(jointMsg.replace("_", " "), TextToSpeech.QUEUE_ADD, null);
-            shouldVibrate = true;
+            currErrors.add(jointMsg);
         }
-        if (shouldVibrate) {
+        if (currErrors.size() > 0) {
             Vibrator vib = (Vibrator) getAct().getSystemService(Context.VIBRATOR_SERVICE);
             vib.vibrate(200);
         }
+        for (String currError : currErrors) {
+            if (!prevErrors.contains(currError)) {
+                getAct().tts.speak(currError.replace("_", " "), TextToSpeech.QUEUE_ADD, null);
+            }
+        }
+        prevErrors.clear();
+        prevErrors.addAll(currErrors);
 
         getAct().refreshTrackingList(jointListData);
     }
